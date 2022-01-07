@@ -45,12 +45,29 @@ namespace io
          
       }
 
+      constexpr ~intrusive_optional() requires std::is_trivially_destructible_v<value_type> = default;
 
+      constexpr ~intrusive_optional() requires (std::is_trivially_destructible_v<value_type> == false)
+      {
+         if (m_value == false)
+            return;
+         m_value.~value_type();
+      }
+
+
+
+      [[nodiscard]] constexpr auto value() const &  -> const value_type&;
+      [[nodiscard]] constexpr auto value()       &  ->       value_type&;
+      [[nodiscard]] constexpr auto value()       && ->       value_type&&;
+      [[nodiscard]] constexpr auto value() const && -> const value_type&&;
+
+      explicit constexpr operator bool() const noexcept;
+                    constexpr auto reset() noexcept -> void;
       [[nodiscard]] constexpr auto has_value() const noexcept -> bool;
       [[nodiscard]] constexpr auto operator*()       noexcept ->       value_type&;
       [[nodiscard]] constexpr auto operator*() const noexcept -> const value_type&;
-      [[nodiscard]] constexpr auto value()       ->       value_type&;
-      [[nodiscard]] constexpr auto value() const -> const value_type&;
+      [[nodiscard]] constexpr auto operator->()       ->       value_type*;
+      [[nodiscard]] constexpr auto operator->() const -> const value_type*;
    };
 
 
@@ -65,6 +82,91 @@ namespace io
    }
 
 
+}
+
+
+template <auto null_value_param>
+constexpr auto io::intrusive_optional<null_value_param>::operator->() -> value_type*
+{
+   return std::addressof(m_value);
+}
+
+
+template <auto null_value_param>
+constexpr auto io::intrusive_optional<null_value_param>::operator->() const -> const value_type*
+{
+   return std::addressof(m_value);
+}
+
+
+template <auto null_value_param>
+constexpr auto io::intrusive_optional<null_value_param>::value() const & -> const value_type&
+{
+   if (this->has_value == false)
+   {
+      throw bad_optional_access{};
+   }
+
+   return m_value;
+}
+
+
+template <auto null_value_param>
+constexpr auto io::intrusive_optional<null_value_param>::value() & -> value_type&
+{
+   if (this->has_value == false)
+   {
+      throw bad_optional_access{};
+   }
+
+   return m_value;
+}
+
+
+template <auto null_value_param>
+constexpr auto io::intrusive_optional<null_value_param>::value() && -> value_type&&
+{
+   if (this->has_value == false)
+   {
+      throw bad_optional_access{};
+   }
+
+   return ::std::move(m_value);
+}
+
+
+template <auto null_value_param>
+constexpr auto io::intrusive_optional<null_value_param>::value() const && -> const value_type&&
+{
+   if (this->has_value() == false)
+   {
+      throw bad_optional_access{};
+   }
+
+   return ::std::move(m_value);
+}
+
+
+template <auto null_value_param>
+constexpr io::intrusive_optional<null_value_param>::operator bool() const noexcept
+{
+   return this->has_value();
+}
+
+
+template <auto null_value_param>
+constexpr auto io::intrusive_optional<null_value_param>::reset() noexcept -> void
+{
+   if (this->has_value() == false)
+   {
+      return;
+   }
+
+   if constexpr (std::is_trivially_destructible_v<value_type> == false)
+   {
+      m_value.~value_type();
+   }
+   m_value = null_value;
 }
 
 
@@ -90,23 +192,4 @@ constexpr auto io::intrusive_optional<null_value_param>::operator*() const noexc
 }
 
 
-template <auto null_value_param>
-constexpr auto io::intrusive_optional<null_value_param>::value() -> value_type&
-{
-   if (has_value() == false)
-   {
-      throw bad_optional_access{};
-   }
-   return m_value;
-}
-
-
-template <auto null_value_param>
-constexpr auto io::intrusive_optional<null_value_param>::value() const -> const value_type&
-{
-   if (has_value() == false)
-   {
-      throw bad_optional_access{};
-   }
-   return m_value;
-}
+// TODO hash
