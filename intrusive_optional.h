@@ -53,6 +53,33 @@ namespace io
       }
 
 
+
+
+      template <class U> requires (std::is_copy_constructible_v<value_type> && std::is_convertible_v<U&&, value_type>)
+      [[nodiscard]] constexpr auto value_or(U&& right) const & -> value_type
+      {
+         if (this->has_value())
+         {
+            return this->m_value;
+         }
+
+         return static_cast<value_type>(::std::forward<U>(right));
+      }
+
+      template <class U> requires (std::is_move_constructible_v<value_type> && std::is_convertible_v<U&&, value_type>)
+      [[nodiscard]] constexpr auto value_or(U&& right) && -> value_type
+      {
+         if (this->has_value())
+         {
+            return ::std::move(this->m_value);
+         }
+
+         return static_cast<value_type>(::std::forward<U>(right));
+      }
+
+
+
+
       [[nodiscard]] constexpr auto value() const &  -> const value_type&;
       [[nodiscard]] constexpr auto value()       &  ->       value_type&;
       [[nodiscard]] constexpr auto value()       && ->       value_type&&;
@@ -88,14 +115,14 @@ namespace io
 template <auto null_value_param>
 constexpr auto io::intrusive_optional<null_value_param>::operator->() -> value_type*
 {
-   return std::addressof(this->m_value);
+   return ::std::addressof(this->m_value);
 }
 
 
 template <auto null_value_param>
 constexpr auto io::intrusive_optional<null_value_param>::operator->() const -> const value_type*
 {
-   return std::addressof(this->m_value);
+   return ::std::addressof(this->m_value);
 }
 
 
