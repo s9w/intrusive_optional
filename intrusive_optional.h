@@ -14,8 +14,6 @@ namespace io
       }
    };
 
-#define IO_FWD(x) static_cast<decltype(x)&&>(x)
-
    // requires constexpr null-value and constexpr copy constructor
    template<auto null_value_param>
    struct intrusive_optional
@@ -55,7 +53,6 @@ namespace io
       }
 
 
-
       [[nodiscard]] constexpr auto value() const &  -> const value_type&;
       [[nodiscard]] constexpr auto value()       &  ->       value_type&;
       [[nodiscard]] constexpr auto value()       && ->       value_type&&;
@@ -76,12 +73,12 @@ namespace io
 
    template <class T>
    constexpr auto make_optional(T&& v) {
-      return intrusive_optional<std::decay_t<T>>{IO_FWD(v)};
+      return intrusive_optional<std::decay_t<T>>{std::forward<T>(v)};
    }
 
    template <class T, class... Args>
    constexpr auto make_optional(Args&&... args) {
-      return intrusive_optional<T>{std::in_place, IO_FWD(args)...};
+      return intrusive_optional<T>{std::in_place, std::forward<Args>(args)...};
    }
 
 
@@ -91,14 +88,14 @@ namespace io
 template <auto null_value_param>
 constexpr auto io::intrusive_optional<null_value_param>::operator->() -> value_type*
 {
-   return std::addressof(m_value);
+   return std::addressof(this->m_value);
 }
 
 
 template <auto null_value_param>
 constexpr auto io::intrusive_optional<null_value_param>::operator->() const -> const value_type*
 {
-   return std::addressof(m_value);
+   return std::addressof(this->m_value);
 }
 
 
@@ -110,7 +107,7 @@ constexpr auto io::intrusive_optional<null_value_param>::value() const & -> cons
       throw bad_optional_access{};
    }
 
-   return m_value;
+   return this->m_value;
 }
 
 
@@ -122,7 +119,7 @@ constexpr auto io::intrusive_optional<null_value_param>::value() & -> value_type
       throw bad_optional_access{};
    }
 
-   return m_value;
+   return this->m_value;
 }
 
 
@@ -134,7 +131,7 @@ constexpr auto io::intrusive_optional<null_value_param>::value() && -> value_typ
       throw bad_optional_access{};
    }
 
-   return ::std::move(m_value);
+   return ::std::move(this->m_value);
 }
 
 
@@ -146,35 +143,35 @@ constexpr auto io::intrusive_optional<null_value_param>::value() const && -> con
       throw bad_optional_access{};
    }
 
-   return ::std::move(m_value);
+   return ::std::move(this->m_value);
 }
 
 
 template <auto null_value_param>
 constexpr auto io::intrusive_optional<null_value_param>::operator*() const & -> const value_type&
 {
-   return m_value;
+   return this->m_value;
 }
 
 
 template <auto null_value_param>
 constexpr auto io::intrusive_optional<null_value_param>::operator*() & -> value_type&
 {
-   return m_value;
+   return this->m_value;
 }
 
 
 template <auto null_value_param>
 constexpr auto io::intrusive_optional<null_value_param>::operator*() && -> value_type&&
 {
-   return ::std::move(m_value);
+   return ::std::move(this->m_value);
 }
 
 
 template <auto null_value_param>
 constexpr auto io::intrusive_optional<null_value_param>::operator*() const && -> const value_type&&
 {
-   return ::std::move(m_value);
+   return ::std::move(this->m_value);
 }
 
 
@@ -195,16 +192,16 @@ constexpr auto io::intrusive_optional<null_value_param>::reset() noexcept -> voi
 
    if constexpr (std::is_trivially_destructible_v<value_type> == false)
    {
-      m_value.~value_type();
+      this->m_value.~value_type();
    }
-   m_value = null_value;
+   this->m_value = null_value;
 }
 
 
 template <auto null_value_param>
 constexpr auto io::intrusive_optional<null_value_param>::has_value() const noexcept -> bool
 {
-   const bool is_equal_to_null = m_value == null_value;
+   const bool is_equal_to_null = this->m_value == null_value;
    return is_equal_to_null == false;
 }
 
