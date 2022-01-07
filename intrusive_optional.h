@@ -61,11 +61,14 @@ namespace io
       [[nodiscard]] constexpr auto value()       && ->       value_type&&;
       [[nodiscard]] constexpr auto value() const && -> const value_type&&;
 
+      [[nodiscard]] constexpr auto operator*() const &  -> const value_type&;
+      [[nodiscard]] constexpr auto operator*()       &  ->       value_type&;
+      [[nodiscard]] constexpr auto operator*()       && ->       value_type&&;
+      [[nodiscard]] constexpr auto operator*() const && -> const value_type&&;
+
       explicit constexpr operator bool() const noexcept;
                     constexpr auto reset() noexcept -> void;
       [[nodiscard]] constexpr auto has_value() const noexcept -> bool;
-      [[nodiscard]] constexpr auto operator*()       noexcept ->       value_type&;
-      [[nodiscard]] constexpr auto operator*() const noexcept -> const value_type&;
       [[nodiscard]] constexpr auto operator->()       ->       value_type*;
       [[nodiscard]] constexpr auto operator->() const -> const value_type*;
    };
@@ -148,6 +151,34 @@ constexpr auto io::intrusive_optional<null_value_param>::value() const && -> con
 
 
 template <auto null_value_param>
+constexpr auto io::intrusive_optional<null_value_param>::operator*() const & -> const value_type&
+{
+   return m_value;
+}
+
+
+template <auto null_value_param>
+constexpr auto io::intrusive_optional<null_value_param>::operator*() & -> value_type&
+{
+   return m_value;
+}
+
+
+template <auto null_value_param>
+constexpr auto io::intrusive_optional<null_value_param>::operator*() && -> value_type&&
+{
+   return ::std::move(m_value);
+}
+
+
+template <auto null_value_param>
+constexpr auto io::intrusive_optional<null_value_param>::operator*() const && -> const value_type&&
+{
+   return ::std::move(m_value);
+}
+
+
+template <auto null_value_param>
 constexpr io::intrusive_optional<null_value_param>::operator bool() const noexcept
 {
    return this->has_value();
@@ -175,20 +206,6 @@ constexpr auto io::intrusive_optional<null_value_param>::has_value() const noexc
 {
    const bool is_equal_to_null = m_value == null_value;
    return is_equal_to_null == false;
-}
-
-
-template <auto null_value_param>
-constexpr auto io::intrusive_optional<null_value_param>::operator*() noexcept -> value_type&
-{
-   return m_value;
-}
-
-
-template <auto null_value_param>
-constexpr auto io::intrusive_optional<null_value_param>::operator*() const noexcept -> const value_type&
-{
-   return m_value;
 }
 
 
