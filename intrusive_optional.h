@@ -87,24 +87,16 @@ namespace io
       }
 
       // Constructors: (7)
-      template <class U, class... Args>
-      constexpr explicit intrusive_optional(std::in_place_t, std::initializer_list<U> ilist, Args&&... args)
-         requires std::is_constructible_v<value_type, std::initializer_list<U>&, Args...>
-      {
-         this->construct_from(ilist, SWL_FWD(args)...);
-      }
+      //template <class U, class... Args>
+      //constexpr explicit intrusive_optional(std::in_place_t, std::initializer_list<U> ilist, Args&&... args)
+      //   //requires std::is_constructible_v<value_type, std::initializer_list<U>&, Args...>
+      //{
+      //   this->construct_from(ilist, SWL_FWD(args)...);
+      //}
 
 
       // Constructor (8)
-      template <class U = value_type>
-      constexpr explicit(std::is_convertible_v<U, value_type> == false) intrusive_optional(U&& value)
-         requires
-         (std::is_constructible_v<value_type, U>
-            && std::is_same_v<std::remove_cvref_t<U>, std::in_place_t> == false
-            && std::is_same_v<std::remove_cvref_t<U>, intrusive_optional> == false)
-      {
-         this->construct_from(SWL_FWD(value));
-      }
+      // Can't be implemented due to compile-time requirements
 
 
 
@@ -128,11 +120,6 @@ namespace io
       }
 
 
-      
-
-
-
-      
 
 
 
@@ -149,42 +136,16 @@ namespace io
 
 
 
-      static inline constexpr bool has_move_assign = std::is_move_assignable_v<value_type> && std::is_move_constructible_v<value_type>;
-      static inline constexpr bool has_trivial_move_assign = std::is_trivially_move_assignable_v<value_type> && std::is_trivially_move_constructible_v<value_type>;
-      static inline constexpr bool has_trivial_copy = std::is_trivially_copy_assignable_v<value_type> && std::is_trivially_copy_constructible_v<value_type>;
-      static inline constexpr bool has_copy = std::is_copy_assignable_v<value_type> && std::is_copy_constructible_v<value_type>;
+      // operator= (1, 2 and 3) are unnecessary to explicitly implement
 
-      // operator=
-      constexpr intrusive_optional& operator=(const intrusive_optional&) requires has_trivial_copy = default;
-      constexpr intrusive_optional& operator=(const intrusive_optional& right) requires (has_copy && has_trivial_copy == false)
-      {
-         this->m_value = right.m_value;
-         return *this;
-         // return this->assign_from_optional(right);
-      }
+      // operator= (4)
+      // can't implement due to requirements can't be checked compile-time
 
-      constexpr intrusive_optional& operator=(intrusive_optional&&) requires has_trivial_move_assign = default;
-      constexpr intrusive_optional& operator=(intrusive_optional&& right) requires (has_move_assign && has_trivial_move_assign == false)
-      {
-         this->m_value = std::move(right.m_value);
-         return *this;
-         // return this->assign_from_optional(SWL_FWD(right));
-      }
+      // operator= (5, 6 not implemented
 
-      // template <class U = T>
-      // constexpr intrusive_optional& operator=(U && u)
-      //    requires
-      //    (not std::is_same_v<std::remove_cvref_t<U>, optional>
-      //       and not(std::is_scalar_v<T> and std::is_same_v<T, std::decay_t<U>>)
-      //       and std::is_constructible_v<T, U>
-      //       and std::is_assignable_v<T&, U>)
-      // {
-      //    // if (active)
-      //    //    **this = SWL_FWD(u);
-      //    // else
-      //    //    this->construct_from(SWL_FWD(u));
-      //    // return *this;
-      // }
+
+
+
 
 
 
@@ -351,20 +312,30 @@ namespace io
    }; // intrusive_optional
 
 
-   template <class T>
-   [[nodiscard]] constexpr auto make_optional(T&& v) {
-      return intrusive_optional<std::decay_t<T>>{std::forward<T>(v)};
+   // make_optional (1) not implemented because implicit argument deduction from parameter no longer possible
+
+   // make_optional (2)
+   template <auto T0, class... Args>
+   [[nodiscard]] constexpr auto make_optional(Args&&... args) {
+      return intrusive_optional<T0>{std::in_place, std::forward<Args>(args)...};
    }
 
-   template <class T, class... Args>
-   [[nodiscard]] constexpr auto make_optional(Args&&... args) {
-      return intrusive_optional<T>{std::in_place, std::forward<Args>(args)...};
-   }
+   // make_optional (3)
+   // initializer_list are stupids
+   //template <auto T0, class U, class... Args>
+   //constexpr auto make_optional(std::initializer_list<U> il, Args&&... args) {
+   //   return intrusive_optional<T0> {std::in_place, il, SWL_FWD(args)...};
+   //}
+
+
+
+
 
    template <auto null_value, typename T = std::decay_t<decltype(null_value)>>
    requires (std::is_move_constructible_v<T>&& std::is_swappable_v<T>)
-      constexpr void swap(intrusive_optional<null_value>& x, intrusive_optional<null_value>& y)
+      constexpr auto swap(intrusive_optional<null_value>& x, intrusive_optional<null_value>& y)
       noexcept(noexcept(x.swap(y)))
+   -> void
    {
       x.swap(y);
    }
