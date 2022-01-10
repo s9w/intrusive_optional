@@ -2,10 +2,13 @@
 
 #include <exception>
 #include <utility>
+#include <optional>
 
 
 namespace io
 {
+#define SWL_MOV(x) static_cast<std::remove_reference_t<decltype(x)>&&>(x)
+#define SWL_FWD(x) static_cast<decltype(x)&&>(x)
 
    struct bad_optional_access final : ::std::exception {
       [[nodiscard]] auto what() const noexcept -> const char* override
@@ -22,29 +25,115 @@ namespace io
 
       constexpr inline static value_type null_value{ null_value_param };
    private:
-      value_type m_value = null_value;
+      value_type m_value;
+
    public:
 
-      // Constructors
-      constexpr intrusive_optional() noexcept = default;
-      constexpr intrusive_optional(const intrusive_optional& o) requires std::is_copy_constructible_v<value_type> = default;
-      constexpr intrusive_optional(intrusive_optional&& o) requires std::is_move_constructible_v<value_type> = default;
+      // Constructors: (1)
+      constexpr intrusive_optional() noexcept
+         : m_value(null_value_param)
+      { }
 
+      constexpr intrusive_optional(std::nullopt_t) noexcept
+         : m_value(null_value_param)
+      { }
+
+
+      // Constructors: (2)
+      constexpr intrusive_optional(const intrusive_optional&)
+         requires (std::is_copy_constructible_v<value_type> && std::is_trivially_copy_constructible_v<value_type>) = default;
+
+      constexpr intrusive_optional(const intrusive_optional& other)
+         requires (std::is_copy_constructible_v<value_type> && std::is_trivially_copy_constructible_v<value_type> == false)
+      {
+          this->construct_from_optional(other);
+      }
+
+
+      // Constructors: (3)
+      constexpr intrusive_optional(intrusive_optional&&)
+         requires std::is_trivially_move_constructible_v<value_type> = default;
+
+      constexpr intrusive_optional(intrusive_optional&& other)
+         noexcept(std::is_nothrow_move_constructible_v<value_type>)
+         requires (std::is_move_constructible_v<value_type> && std::is_trivially_move_constructible_v<value_type> == false)
+      {
+         this->construct_from_optional(SWL_FWD(other));
+      }
+
+
+      // This is the requirement under the 4) and 5) constructors
+      //template <class T, class U>
+      //static inline constexpr bool requirement_4_and_5 =
+      //   std::is_constructible_v<T, const U&>
+      //   && std::is_constructible_v<T, std::optional<U>&> == false
+      //   && std::is_constructible_v<T, const std::optional<U>&> == false
+      //   && std::is_constructible_v<T, std::optional<U>&&> == false
+      //   && std::is_constructible_v<T, const std::optional<U>&&> == false
+      //   && std::is_convertible_v<std::optional<U>&, T> == false
+      //   && std::is_convertible_v<const std::optional<U>&, T> == false
+      //   && std::is_convertible_v<std::optional<U>&&, T> == false
+      //   && std::is_convertible_v<const std::optional<U>&&, T> == false;
+
+      // Constructors: (4, 5)
+      // ignored
+
+
+      // Constructors: (6)
       template<typename ... Args>
-      constexpr explicit intrusive_optional(std::in_place_t, Args&&... args) : m_value(args...)
+      constexpr explicit intrusive_optional(std::in_place_t, Args&&... args)
       {
-
+         this->construct_from(SWL_FWD(args)...);
       }
 
-      constexpr intrusive_optional(const value_type& value) : m_value(value)
+      // Constructors: (7)
+      template <class U, class... Args>
+      constexpr explicit intrusive_optional(std::in_place_t, std::initializer_list<U> ilist, Args&&... args)
+         requires std::is_constructible_v<value_type, std::initializer_list<U>&, Args...>
       {
-
+         this->construct_from(ilist, SWL_FWD(args)...);
       }
 
-      constexpr intrusive_optional(value_type&& value) : m_value(std::move(value))
-      {
 
+      // Constructor (8)
+      template <class U = value_type>
+      constexpr explicit(std::is_convertible_v<U, value_type> == false) intrusive_optional(U&& value)
+         requires
+         (std::is_constructible_v<value_type, U>
+            && std::is_same_v<std::remove_cvref_t<U>, std::in_place_t> == false
+            && std::is_same_v<std::remove_cvref_t<U>, intrusive_optional> == false)
+      {
+         this->construct_from(SWL_FWD(value));
       }
+
+
+
+
+
+
+      // Constructor helpers
+      template <class opt_type>
+      constexpr auto construct_from_optional(opt_type&& opt) -> void
+      {
+         if (this->has_value())
+         {
+            this->construct_from(*SWL_FWD(opt));
+         }
+      }
+
+      template <class... Args>
+      constexpr auto construct_from(Args&&... args) -> void
+      {
+         std::construct_at(std::addressof(m_value), static_cast<Args&&>(args)...);
+      }
+
+
+      
+
+
+
+      
+
 
 
 
@@ -53,33 +142,33 @@ namespace io
 
       constexpr ~intrusive_optional() requires (std::is_trivially_destructible_v<value_type> == false)
       {
-         if (m_value == false)
+         if (this->has_value() == false)
             return;
          m_value.~value_type();
       }
 
 
 
-      static constexpr bool has_move_assign = std::is_move_assignable_v<value_type> && std::is_move_constructible_v<value_type>;
-      static constexpr bool has_trivial_move_assign = std::is_trivially_move_assignable_v<value_type> && std::is_trivially_move_constructible_v<value_type>;
-      static constexpr bool has_trivial_copy = std::is_trivially_copy_assignable_v<value_type> && std::is_trivially_copy_constructible_v<value_type>;
-      static constexpr bool has_copy = std::is_copy_assignable_v<value_type> && std::is_copy_constructible_v<value_type>;
+      static inline constexpr bool has_move_assign = std::is_move_assignable_v<value_type> && std::is_move_constructible_v<value_type>;
+      static inline constexpr bool has_trivial_move_assign = std::is_trivially_move_assignable_v<value_type> && std::is_trivially_move_constructible_v<value_type>;
+      static inline constexpr bool has_trivial_copy = std::is_trivially_copy_assignable_v<value_type> && std::is_trivially_copy_constructible_v<value_type>;
+      static inline constexpr bool has_copy = std::is_copy_assignable_v<value_type> && std::is_copy_constructible_v<value_type>;
 
       // operator=
-      constexpr intrusive_optional& operator=(const intrusive_optional& o) requires has_trivial_copy = default;
-      constexpr intrusive_optional& operator=(const intrusive_optional& o) requires (has_copy && has_trivial_copy == false)
+      constexpr intrusive_optional& operator=(const intrusive_optional&) requires has_trivial_copy = default;
+      constexpr intrusive_optional& operator=(const intrusive_optional& right) requires (has_copy && has_trivial_copy == false)
       {
-         this->m_value = o.m_value;
+         this->m_value = right.m_value;
          return *this;
-         // return this->assign_from_optional(o);
+         // return this->assign_from_optional(right);
       }
 
-      constexpr intrusive_optional& operator=(intrusive_optional&& o) requires has_trivial_move_assign = default;
-      constexpr intrusive_optional& operator=(intrusive_optional&& o) requires (has_move_assign && has_trivial_move_assign == false)
+      constexpr intrusive_optional& operator=(intrusive_optional&&) requires has_trivial_move_assign = default;
+      constexpr intrusive_optional& operator=(intrusive_optional&& right) requires (has_move_assign && has_trivial_move_assign == false)
       {
-         this->m_value = std::move(o.m_value);
+         this->m_value = std::move(right.m_value);
          return *this;
-         // return this->assign_from_optional(SWL_FWD(o));
+         // return this->assign_from_optional(SWL_FWD(right));
       }
 
       // template <class U = T>
@@ -100,7 +189,7 @@ namespace io
 
 
       // Observers: operator->
-      [[nodiscard]] constexpr auto operator->()->value_type*
+      [[nodiscard]] constexpr auto operator->() -> value_type*
       {
          return ::std::addressof(this->m_value);
       }
@@ -118,12 +207,12 @@ namespace io
          return this->m_value;
       }
 
-      [[nodiscard]] constexpr auto operator*() & ->value_type&
+      [[nodiscard]] constexpr auto operator*() & -> value_type&
       {
          return this->m_value;
       }
 
-      [[nodiscard]] constexpr auto operator*() && ->value_type&&
+      [[nodiscard]] constexpr auto operator*() && -> value_type&&
       {
          return ::std::move(this->m_value);
       }
@@ -153,7 +242,7 @@ namespace io
 
 
       // Observers: value
-      [[nodiscard]] constexpr auto value() const& -> const value_type&
+      [[nodiscard]] constexpr auto value() const & -> const value_type&
       {
          if (this->has_value == false)
          {
@@ -162,7 +251,7 @@ namespace io
          return this->m_value;
       }
 
-      [[nodiscard]] constexpr auto value() & ->value_type&
+      [[nodiscard]] constexpr auto value() & -> value_type&
       {
          if (this->has_value == false)
          {
@@ -171,7 +260,7 @@ namespace io
          return this->m_value;
       }
 
-      [[nodiscard]] constexpr auto value() && ->value_type&&
+      [[nodiscard]] constexpr auto value() && -> value_type&&
       {
          if (this->has_value == false)
          {
@@ -180,7 +269,7 @@ namespace io
          return ::std::move(this->m_value);
       }
 
-      [[nodiscard]] constexpr auto value() const&& -> const value_type&&
+      [[nodiscard]] constexpr auto value() const && -> const value_type&&
       {
          if (this->has_value() == false)
          {
@@ -192,7 +281,7 @@ namespace io
 
 
       // Observers: value_or
-      template <class U> requires (std::is_copy_constructible_v<value_type>&& std::is_convertible_v<U&&, value_type>)
+      template <class U> requires (std::is_copy_constructible_v<value_type> && std::is_convertible_v<U&&, value_type>)
          [[nodiscard]] constexpr auto value_or(U&& right) const& -> value_type
       {
          if (this->has_value())
@@ -218,7 +307,7 @@ namespace io
 
       // Modifiers: swap
       constexpr void swap(intrusive_optional& right)
-         noexcept(std::is_nothrow_move_constructible_v<value_type>&& std::is_nothrow_swappable_v<value_type>)
+         noexcept(std::is_nothrow_move_constructible_v<value_type> && std::is_nothrow_swappable_v<value_type>)
          requires std::is_move_constructible_v<value_type>
       {
          if (this->has_value() == false && right.has_value() == false)
@@ -253,11 +342,13 @@ namespace io
          this->m_value = null_value;
       }
 
-      
+
 
       // Modifiers: emplace
       // TODO
-   };
+
+
+   }; // intrusive_optional
 
 
    template <class T>
