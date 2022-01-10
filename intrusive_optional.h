@@ -119,7 +119,37 @@ namespace io
          std::construct_at(std::addressof(m_value), static_cast<Args&&>(args)...);
       }
 
+      template <typename Opt>
+      constexpr auto assign_from_optional(Opt&& other) -> void
+      {
+         // "If both *this and other do not contain a value, the function has no effect."
+         if(this->has_value() == false && other.has_value() == false)
+         {
+            return;
+         }
 
+         // "If *this contains a value, but other does not, then the contained value is destroyed
+         // by calling its destructor. *this does not contain a value after the call."
+         if(this->has_value() && other.has_value() == false)
+         {
+            this->reset_impl();
+         }
+
+         // "If other contains a value, then depending on whether *this contains a value, the
+         // contained value is either direct-initialized or assigned from *other (2) or
+         // std::move(*other) (3). Note that a moved-from optional still contains a value."
+         if(other.has_value())
+         {
+            if(this->has_value())
+            {
+               **this = *SWL_FWD(other);
+            }
+            else
+            {
+               this->construct_from(*SWL_FWD(other));
+            }
+         }
+      }
 
 
 
@@ -134,9 +164,32 @@ namespace io
          m_value.~value_type();
       }
 
+      // operator=
+      static constexpr inline bool assignment_2_cond = std::is_copy_constructible_v<value_type> && std::is_copy_assignable_v<value_type>;
+      static constexpr inline bool assignment_2_trivial_cond = std::is_trivially_copy_constructible_v<value_type> && std::is_trivially_copy_assignable_v<value_type> && std::is_trivially_destructible_v<value_type>;
+      static constexpr inline bool assignment_3_cond = std::is_move_constructible_v<value_type> && std::is_move_assignable_v<value_type>;
+      static constexpr inline bool assignment_3_trivial_cond = std::is_trivially_move_constructible_v<value_type> && std::is_trivially_move_assignable_v<value_type> && std::is_trivially_destructible_v<value_type>;
 
+      constexpr auto operator=(const intrusive_optional<null_value_param>&) -> intrusive_optional<null_value_param>&
+         requires (assignment_2_cond && assignment_2_trivial_cond) = default;
 
-      // operator= (1, 2 and 3) are unnecessary to explicitly implement
+      constexpr auto operator=(const intrusive_optional<null_value_param>& other) -> intrusive_optional<null_value_param>&
+         requires assignment_2_cond
+      {
+         this->assign_from_optional(other);
+         return *this;
+      }
+
+      constexpr auto operator=(intrusive_optional<null_value_param>&&) -> intrusive_optional<null_value_param>&
+         requires (assignment_3_cond && assignment_3_trivial_cond)
+         = default;
+
+      constexpr intrusive_optional<null_value_param>& operator=(intrusive_optional<null_value_param>&& other) noexcept
+         requires assignment_3_cond
+      {
+         this->assign_from_optional(SWL_FWD(other));
+         return *this;
+      }
 
       // operator= (4)
       // can't implement due to requirements can't be checked compile-time
@@ -296,6 +349,12 @@ namespace io
             return;
          }
 
+         this->reset_impl();
+      }
+
+
+      constexpr auto reset_impl() noexcept -> void
+      {
          if constexpr (std::is_trivially_destructible_v<value_type> == false)
          {
             this->m_value.~value_type();
