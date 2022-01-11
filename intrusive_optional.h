@@ -97,7 +97,14 @@ namespace io
 
 
       // Constructor (8)
-      // Can't be implemented due to compile-time requirements
+      template <class U = value_type>
+      constexpr explicit(not std::is_convertible_v<U, value_type>) intrusive_optional(U&& u)
+         requires (std::is_constructible_v<value_type, U>
+            && std::is_same_v<std::remove_cvref_t<U>, std::in_place_t> == false
+            && std::is_same_v<std::remove_cvref_t<U>, intrusive_optional> == false)
+      {
+         this->construct_from(SWL_FWD(u));
+      }
 
 
 
