@@ -283,11 +283,13 @@ namespace io
       }
 
       [[nodiscard]] constexpr auto operator*() & -> value_type&
+         requires(mode == safety_mode::unsafe)
       {
          return this->m_value;
       }
 
       [[nodiscard]] constexpr auto operator*() && -> value_type&&
+         requires(mode == safety_mode::unsafe)
       {
          return ::std::move(this->m_value);
       }
@@ -327,6 +329,7 @@ namespace io
       }
 
       [[nodiscard]] constexpr auto value() & -> value_type&
+         requires(mode == safety_mode::unsafe)
       {
          if (this->has_value() == false)
          {
@@ -336,6 +339,7 @@ namespace io
       }
 
       [[nodiscard]] constexpr auto value() && -> value_type&&
+         requires(mode == safety_mode::unsafe)
       {
          if (this->has_value() == false)
          {

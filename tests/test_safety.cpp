@@ -25,7 +25,7 @@ namespace
    auto test_6() -> bool
    {
       using opt_type = io::intrusive_optional<-1, io::safety_mode::safe>;
-      const auto lambda = []() {opt_type value(std::in_place, -1); };
+      constexpr auto lambda = []() {opt_type value(std::in_place, -1); };
       if (has_thrown(lambda) == false)
       {
          std::terminate();
@@ -37,7 +37,7 @@ namespace
 
    auto test_7() -> bool
    {
-      const auto lambda = []() {two_values_optional_safe value(std::in_place, {0}, 0); };
+      constexpr auto lambda = []() {two_values_optional_safe value(std::in_place, {0}, 0); };
       if (has_thrown(lambda) == false)
       {
          std::terminate();
@@ -49,8 +49,8 @@ namespace
 
    auto test_8() -> bool
    {
-      using opt_type = io::intrusive_optional < io::one_value{ 0 }, io::safety_mode::safe > ;
-      const auto lambda = []() {opt_type value(0); };
+      using opt_type = io::intrusive_optional<-1, io::safety_mode::safe>;
+      constexpr auto lambda = []() {opt_type value(-1); };
       if (has_thrown(lambda) == false)
       {
          std::terminate();
@@ -59,6 +59,29 @@ namespace
       return true;
    }
 
+
+   auto test_operator_star() -> bool
+   {
+      using opt_type = io::intrusive_optional<-1, io::safety_mode::safe>;
+      opt_type default_constructed;
+
+      // This won't compile
+      //*default_constructed = 5;
+
+      return true;
+   }
+
+
+   auto test_value() -> bool
+   {
+      using opt_type = io::intrusive_optional<-1, io::safety_mode::safe>;
+      opt_type default_constructed;
+
+      // This won't compile
+      //default_constructed.value() = 5;
+
+      return true;
+   }
    
    
 } // namespace {}
@@ -69,4 +92,6 @@ auto io::test_safety() -> void
    test_6();
    test_7();
    test_8();
+   test_operator_star();
+   test_value();
 }
