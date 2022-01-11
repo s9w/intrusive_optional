@@ -99,6 +99,38 @@ namespace
 
       return true;
    }
+
+
+   auto test_emplace_1() -> bool
+   {
+      constexpr auto lambda = []()
+      {
+         two_values_optional_safe value;
+         value.emplace(0, 0);
+      };
+      if (has_thrown(lambda) == false)
+      {
+         std::terminate();
+      }
+
+      return true;
+   }
+
+
+   auto test_emplace_2() -> bool
+   {
+      constexpr auto lambda = []()
+      {
+         two_values_optional_safe value;
+         value.emplace({ 0 }, 0);
+      };
+      if (has_thrown(lambda) == false)
+      {
+         std::terminate();
+      }
+
+      return true;
+   }
    
    
 } // namespace {}
@@ -112,4 +144,6 @@ auto io::test_safety() -> void
    test_assignment_4();
    test_operator_star();
    test_value();
+   test_emplace_1();
+   test_emplace_2();
 }

@@ -35,8 +35,9 @@ using safe_int_optional = io::intrusive_optional<-1, io::safety_mode::safe>
 
 In detail, safety mode does this:
 
-- [Constructors (6), (7) and (8)](https://en.cppreference.com/w/cpp/utility/optional/optional) throw when constructed with the null value
-- [`operator=` (4)](https://en.cppreference.com/w/cpp/utility/optional/operator%3D) throws when assigned the null value
+- [Constructors (6), (7) and (8)](https://en.cppreference.com/w/cpp/utility/optional/optional) throw when resulting in the null value
+- [`operator=` overload (4)](https://en.cppreference.com/w/cpp/utility/optional/operator%3D) throws when resulting in the null value
+- All [`emplace`](https://en.cppreference.com/w/cpp/utility/optional/emplace) overloads throw when resulting in the null value
 - Non-`const` overloads of `operator*()` and `value()` are disabled
 
 By default this is disabled so you can ignore that if you prefer.

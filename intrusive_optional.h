@@ -99,7 +99,7 @@ namespace io
       constexpr explicit intrusive_optional(std::in_place_t, Args&&... args)
       {
          this->construct_from(SWL_FWD(args)...);
-         ensure_not_zero();
+         this->ensure_not_zero();
       }
 
 
@@ -109,7 +109,7 @@ namespace io
          requires std::is_constructible_v<value_type, std::initializer_list<U>&, Args...>
       {
          this->construct_from(ilist, SWL_FWD(args)...);
-         ensure_not_zero();
+         this->ensure_not_zero();
       }
 
 
@@ -121,7 +121,7 @@ namespace io
             && std::is_same_v<std::remove_cvref_t<U>, intrusive_optional> == false)
       {
          this->construct_from(SWL_FWD(u));
-         ensure_not_zero();
+         this->ensure_not_zero();
       }
 
 
@@ -255,7 +255,7 @@ namespace io
          {
             this->construct_from(SWL_FWD(u));
          }
-         ensure_not_zero();
+         this->ensure_not_zero();
          return *this;
       }
 
@@ -407,21 +407,25 @@ namespace io
       }
 
 
-      // Modifiers: emplace
+      // Modifiers: emplace (1)
       template <class... Args>
       requires std::is_constructible_v<value_type, Args...>
          constexpr auto emplace(Args&&... args) -> void
       {
          this->reset();
          this->construct_from(SWL_FWD(args)...);
+         this->ensure_not_zero();
       }
 
+
+      // Modifiers: emplace (1)
       template <class U, class... Args>
       requires std::is_constructible_v<value_type, std::initializer_list<U>&, Args...>
          constexpr auto emplace(std::initializer_list<U> ilist, Args&&... args) -> void
       {
          this->reset();
          this->construct_from(ilist, SWL_FWD(args)...);
+         this->ensure_not_zero();
       }
 
 
