@@ -96,29 +96,29 @@ namespace io
       template<typename ... Args>
       constexpr explicit intrusive_optional(std::in_place_t, Args&&... args)
       {
-         this->construct_from(std::forward<Args>(args)...);
+         this->construct_at(std::forward<Args>(args)...);
          this->ensure_not_zero();
       }
 
 
       // Constructors: (7)
-      template <class U, class... Args>
+      template <typename U, typename ... Args>
       constexpr explicit intrusive_optional(std::in_place_t, std::initializer_list<U> ilist, Args&&... args)
          requires std::is_constructible_v<value_type, std::initializer_list<U>&, Args...>
       {
-         this->construct_from(ilist, std::forward<Args>(args)...);
+         this->construct_at(ilist, std::forward<Args>(args)...);
          this->ensure_not_zero();
       }
 
 
       // Constructor (8)
-      template <class U = value_type>
+      template <typename U = value_type>
       constexpr explicit(not std::is_convertible_v<U, value_type>) intrusive_optional(U&& u)
          requires (std::is_constructible_v<value_type, U>
             && std::is_same_v<std::remove_cvref_t<U>, std::in_place_t> == false
             && std::is_same_v<std::remove_cvref_t<U>, intrusive_optional> == false)
       {
-         this->construct_from(std::forward<U>(u));
+         this->construct_at(std::forward<U>(u));
          this->ensure_not_zero();
       }
 
@@ -128,15 +128,15 @@ namespace io
 
 
       // Constructor helpers
-      template <class opt_type>
+      template <typename opt_type>
       constexpr auto construct_from_optional(opt_type&& opt) -> void
       {
-         this->construct_from(*std::forward<opt_type>(opt));
+         this->construct_at(*std::forward<opt_type>(opt));
       }
 
 
-      template <class... Args>
-      constexpr auto construct_from(Args&&... args) -> void
+      template <typename ... Args>
+      constexpr auto construct_at(Args&&... args) -> void
       {
          std::construct_at(std::addressof(m_value), static_cast<Args&&>(args)...);
       }
@@ -169,7 +169,7 @@ namespace io
             }
             else
             {
-               this->construct_from(*std::forward<Opt>(other));
+               this->construct_at(*std::forward<Opt>(other));
             }
          }
       }
@@ -234,7 +234,7 @@ namespace io
 
 
       // operator= (4)
-      template <class U = value_type>
+      template <typename U = value_type>
       requires
          (std::is_same_v<std::remove_cvref_t<U>, intrusive_optional> == false
             && (std::is_scalar_v<value_type> == false || std::is_same_v<value_type, std::decay_t<U>> == false)
@@ -248,7 +248,7 @@ namespace io
          }
          else
          {
-            this->construct_from(std::forward<U>(u));
+            this->construct_at(std::forward<U>(u));
          }
          this->ensure_not_zero();
          return *this;
@@ -392,7 +392,7 @@ namespace io
 
 
       // Observers: value_or
-      template <class U> requires (std::is_copy_constructible_v<value_type> && std::is_convertible_v<U&&, value_type>)
+      template <typename U> requires (std::is_copy_constructible_v<value_type> && std::is_convertible_v<U&&, value_type>)
          constexpr auto value_or(U&& default_value) const& -> value_type
       {
          if (this->has_value())
@@ -403,7 +403,7 @@ namespace io
          return static_cast<value_type>(::std::forward<U>(default_value));
       }
 
-      template <class U> requires (std::is_move_constructible_v<value_type>&& std::is_convertible_v<U&&, value_type>)
+      template <typename U> requires (std::is_move_constructible_v<value_type>&& std::is_convertible_v<U&&, value_type>)
          constexpr auto value_or(U&& default_value) && -> value_type
       {
          if (this->has_value())
@@ -438,23 +438,23 @@ namespace io
 
 
       // Modifiers: emplace (1)
-      template <class... Args>
+      template <typename ... Args>
       requires std::is_constructible_v<value_type, Args...>
          constexpr auto emplace(Args&&... args) -> void
       {
          this->reset();
-         this->construct_from(std::forward<Args>(args)...);
+         this->construct_at(std::forward<Args>(args)...);
          this->ensure_not_zero();
       }
 
 
       // Modifiers: emplace (1)
-      template <class U, class... Args>
+      template <typename U, typename ... Args>
       requires std::is_constructible_v<value_type, std::initializer_list<U>&, Args...>
          constexpr auto emplace(std::initializer_list<U> ilist, Args&&... args) -> void
       {
          this->reset();
-         this->construct_from(ilist, std::forward<Args>(args)...);
+         this->construct_at(ilist, std::forward<Args>(args)...);
          this->ensure_not_zero();
       }
 
@@ -553,14 +553,14 @@ namespace io
    // with intrusive_optional since it requires a value and not just a type to instantiate.
 
    // make_optional (2)
-   template <auto T0, class... Args>
+   template <auto T0, typename ... Args>
    constexpr auto make_optional(Args&&... args) -> intrusive_optional<T0>
    {
       return intrusive_optional<T0>{std::in_place, std::forward<Args>(args)...};
    }
 
    // make_optional (3)
-   template <auto T0, class U, class... Args>
+   template <auto T0, typename U, typename ... Args>
    constexpr auto make_optional(std::initializer_list<U> il, Args&&... args) -> intrusive_optional<T0>
    {
       return intrusive_optional<T0> {std::in_place, il, std::forward<Args>(args)...};

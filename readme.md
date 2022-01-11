@@ -3,7 +3,7 @@ The C++ standard library has a `std::optional<T>` type which either contains a `
 
 That is only possible if we give up one possible state of `T` which we consider *magic* or the *null state*. That value is then considered equivalent to a null or a `std::nullopt` value.
 
-The type is instantiated with its null value and otherwise completely mirrors the interface of `std::optional`, see below of differences. Examples:
+The type is instantiated with its null value and otherwise completely mirrors the interface of `std::optional`, [see below](#compatibility-with-stdoptional) of differences. Since the null value is part of the type, it needs to be literal, ie instantiable at compile-time. Examples:
 ```c++
 #include "intrusive_optional.h"
 
@@ -17,10 +17,9 @@ constexpr optional_double assigne_value = 5.0;
 static_assert(assigne_value.has_value() == true);
 static_assert(assigne_value.value() == 5.0);
 ```
-It's just a single header so grab that from Github.
+It's just a single header so grab that from GitHub.
 
-
-I want to stress that this type is very special for particular needs. Please **don't hurt yourself** with this - `std::optional<T>` or [swl::optional](https://github.com/groundswellaudio/swl-optional) are good types.
+This type solves a very special problem and comes with the constraints stated above. It's not recommended for general replacement of `std::optional<T>` or alternatives like [swl::optional](https://github.com/groundswellaudio/swl-optional). Please **don't hurt yourself** with this.
 
 
 ## Safety mode
@@ -43,7 +42,10 @@ In detail, safety mode does this:
 By default the safety mode is disabled so you can ignore that if you prefer.
 
 ## Conversion from and to `std::optional`
-Conversion to `std::optional` can be done with the function `constexpr auto get_std() const -> std::optional<value_type>`. The other way around can only work if the null value is already known, so after construction. Therefore assignment works, i.e.:
+Conversion to `std::optional` are provided by the function `constexpr auto get_std() const -> std::optional<value_type>`.
+
+The other way around can only work if the null value is already known, which is after construction. Therefore assignment works, i.e.:
+
 ```c++
 std::optional<int> std_opt(42);
 io::intrusive_optional<-1> tight_optional;
