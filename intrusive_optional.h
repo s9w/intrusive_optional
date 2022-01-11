@@ -63,21 +63,32 @@ namespace io
       }
 
 
-      // This is the requirement under the 4) and 5) constructors
-      //template <class T, class U>
-      //static inline constexpr bool requirement_4_and_5 =
-      //   std::is_constructible_v<T, const U&>
-      //   && std::is_constructible_v<T, std::optional<U>&> == false
-      //   && std::is_constructible_v<T, const std::optional<U>&> == false
-      //   && std::is_constructible_v<T, std::optional<U>&&> == false
-      //   && std::is_constructible_v<T, const std::optional<U>&&> == false
-      //   && std::is_convertible_v<std::optional<U>&, T> == false
-      //   && std::is_convertible_v<const std::optional<U>&, T> == false
-      //   && std::is_convertible_v<std::optional<U>&&, T> == false
-      //   && std::is_convertible_v<const std::optional<U>&&, T> == false;
+      // Requirement for constructors (4) and (5)
+      template <auto U0, typename U = std::decay_t<decltype(U0)>>
+      static inline constexpr bool requirement_4_and_5 =
+         std::is_constructible_v<value_type, const U&>
+         && std::is_constructible_v<value_type, intrusive_optional<U0>&> == false
+         && std::is_constructible_v<value_type, const intrusive_optional<U0>&> == false
+         && std::is_constructible_v<value_type, intrusive_optional<U0>&&> == false
+         && std::is_constructible_v<value_type, const intrusive_optional<U0>&&> == false
+         && std::is_convertible_v<intrusive_optional<U0>&, value_type> == false
+         && std::is_convertible_v<const intrusive_optional<U0>&, value_type> == false
+         && std::is_convertible_v<intrusive_optional<U0>&&, value_type> == false
+         && std::is_convertible_v<const intrusive_optional<U0>&&, value_type> == false;
 
-      // Constructors: (4, 5)
-      // ignored
+      // Constructors: (4)
+      template <auto U0, typename U = std::decay_t<decltype(U0)>> requires requirement_4_and_5<U0>
+      constexpr explicit(std::is_convertible_v<const U&, value_type> == false) intrusive_optional(const intrusive_optional<U0>& other)
+      {
+         this->construct_from_optional(other);
+      }
+
+      // Constructors: (5)
+      template <auto U0, typename U = std::decay_t<decltype(U0)>> requires requirement_4_and_5<U0>
+      constexpr explicit(std::is_convertible_v<U, value_type> == false) intrusive_optional(intrusive_optional<U0>&& other)
+      {
+         this->construct_from_optional(SWL_FWD(other));
+      }
 
 
       // Constructors: (6)
