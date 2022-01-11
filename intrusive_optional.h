@@ -1,8 +1,9 @@
 #pragma once
 
-#include <utility>
+#include <exception>
 #include <optional>
-#include <tuple> // should be free from <optional>
+#include <tuple> // Should be free from <optional>
+#include <utility>
 
 
 namespace io
@@ -257,8 +258,6 @@ namespace io
          ensure_not_zero();
          return *this;
       }
-
-      // TODO operator= (5) and (6)
 
 
 
@@ -525,8 +524,6 @@ namespace io
       return *lhs >= *rhs;
    }
 
-   // TODO other comparison operators
-
 
    // make_optional (1) not implemented because automatic deduction of the full type isn't possible
    // with intrusive_optional since it requires a value and not just a type to instantiate.
@@ -560,6 +557,3 @@ namespace io
 
 
 } // namespace io
-
-
-// TODO hash

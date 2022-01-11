@@ -3,6 +3,8 @@
 #include "test_assignments.h"
 #include "test_safety.h"
 
+#include "tests_common.h"
+
 
 int main()
 {
