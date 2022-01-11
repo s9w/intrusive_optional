@@ -88,12 +88,12 @@ namespace io
       }
 
       // Constructors: (7)
-      //template <class U, class... Args>
-      //constexpr explicit intrusive_optional(std::in_place_t, std::initializer_list<U> ilist, Args&&... args)
-      //   //requires std::is_constructible_v<value_type, std::initializer_list<U>&, Args...>
-      //{
-      //   this->construct_from(ilist, SWL_FWD(args)...);
-      //}
+      template <class U, class... Args>
+      constexpr explicit intrusive_optional(std::in_place_t, std::initializer_list<U> ilist, Args&&... args)
+         requires std::is_constructible_v<value_type, std::initializer_list<U>&, Args...>
+      {
+         this->construct_from(ilist, SWL_FWD(args)...);
+      }
 
 
       // Constructor (8)
