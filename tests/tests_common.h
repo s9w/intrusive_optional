@@ -81,4 +81,5 @@ namespace io
 }
 
 
-using two_values_optional = io::intrusive_optional < io::two_values{} > ;
+using two_values_optional = io::intrusive_optional < io::two_values{} >;
+using two_values_optional_safe = io::intrusive_optional < io::two_values{}, io::safety_mode::safe >;

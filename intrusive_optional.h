@@ -1,6 +1,5 @@
 #pragma once
 
-#include <exception>
 #include <utility>
 #include <optional>
 #include <tuple> // should be free from <optional>
@@ -11,8 +10,17 @@ namespace io
 #define SWL_MOV(x) static_cast<std::remove_reference_t<decltype(x)>&&>(x)
 #define SWL_FWD(x) static_cast<decltype(x)&&>(x)
 
-   // requires constexpr null-value and constexpr copy constructor
-   template<auto null_value_param>
+   struct unintentionally_null final : std::exception {
+      [[nodiscard]] auto what() const noexcept -> const char* override
+      {
+         return "The value of this intrusive_optional was set to the declared null_value unintentionally.";
+      }
+   };
+
+   enum class safety_mode{unsafe, safe};
+
+   // intrusive_optional requires constexpr null-value and constexpr copy constructor
+   template<auto null_value_param, safety_mode mode = safety_mode::unsafe>
    struct intrusive_optional
    {
       using value_type = std::decay_t<decltype(null_value_param)>;
@@ -90,6 +98,7 @@ namespace io
       constexpr explicit intrusive_optional(std::in_place_t, Args&&... args)
       {
          this->construct_from(SWL_FWD(args)...);
+         ensure_not_zero();
       }
 
 
@@ -99,6 +108,7 @@ namespace io
          requires std::is_constructible_v<value_type, std::initializer_list<U>&, Args...>
       {
          this->construct_from(ilist, SWL_FWD(args)...);
+         ensure_not_zero();
       }
 
 
@@ -110,6 +120,7 @@ namespace io
             && std::is_same_v<std::remove_cvref_t<U>, intrusive_optional> == false)
       {
          this->construct_from(SWL_FWD(u));
+         ensure_not_zero();
       }
 
 
@@ -165,7 +176,16 @@ namespace io
          }
       }
 
-
+      constexpr auto ensure_not_zero() const -> void
+      {
+         if constexpr(mode == safety_mode::safe)
+         {
+            if (this->has_value() == false)
+            {
+               throw unintentionally_null{};
+            }
+         }
+      }
 
 
       // Destructors
@@ -186,10 +206,10 @@ namespace io
       static constexpr inline bool assignment_3_trivial_cond = std::is_trivially_move_constructible_v<value_type> && std::is_trivially_move_assignable_v<value_type> && std::is_trivially_destructible_v<value_type>;
 
       // operator= (2)
-      constexpr auto operator=(const intrusive_optional<null_value_param>&) -> intrusive_optional<null_value_param>&
-         requires (assignment_2_cond && assignment_2_trivial_cond) = default;
+      constexpr auto operator=(const intrusive_optional&) -> intrusive_optional&
+          = default;
 
-      constexpr auto operator=(const intrusive_optional<null_value_param>& other) -> intrusive_optional<null_value_param>&
+      constexpr auto operator=(const intrusive_optional& other) -> intrusive_optional&
          requires assignment_2_cond
       {
          this->assign_from_optional(other);
@@ -198,14 +218,15 @@ namespace io
 
 
       // operator= (3)
-      constexpr auto operator=(intrusive_optional<null_value_param>&&)
+      constexpr auto operator=(intrusive_optional&&)
          noexcept(std::is_nothrow_move_assignable_v<value_type>&& std::is_nothrow_move_constructible_v<value_type>)
-         -> intrusive_optional<null_value_param>&
+         -> intrusive_optional&
          requires (assignment_3_cond && assignment_3_trivial_cond)
          = default;
 
-      constexpr intrusive_optional<null_value_param>& operator=(intrusive_optional<null_value_param>&& other)
-         noexcept(std::is_nothrow_move_assignable_v<value_type>&& std::is_nothrow_move_constructible_v<value_type>)
+      constexpr auto operator=(intrusive_optional&& other)
+      noexcept(std::is_nothrow_move_assignable_v<value_type> && std::is_nothrow_move_constructible_v<value_type>)
+      -> intrusive_optional&
          requires assignment_3_cond
       {
          this->assign_from_optional(SWL_FWD(other));

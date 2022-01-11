@@ -1,6 +1,7 @@
 #include "test_constructors.h"
 #include "test_comparisons.h"
 #include "test_assignments.h"
+#include "test_safety.h"
 
 
 int main()
@@ -8,6 +9,7 @@ int main()
    io::test_constructors();
    io::test_comparisons();
    io::test_assignments();
+   io::test_safety();
 
    return 0;
 }
