@@ -54,5 +54,4 @@ My original motivation was building a concurrency type that was based on `std::a
 - operator= overloads 5 and 6
 - missing comparison operators
 - or_else etc, c++23 interface
-- specialize hash
 - operator= to and from std::optional?

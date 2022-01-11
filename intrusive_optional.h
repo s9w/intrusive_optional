@@ -544,9 +544,9 @@ namespace io
 
 
 
-
+   // Non-member functions: std::swap
    template <auto null_value, typename T = std::decay_t<decltype(null_value)>>
-   requires (std::is_move_constructible_v<T>&& std::is_swappable_v<T>)
+   requires (std::is_move_constructible_v<T> && std::is_swappable_v<T>)
       constexpr auto swap(intrusive_optional<null_value>& x, intrusive_optional<null_value>& y)
       noexcept(noexcept(x.swap(y)))
    -> void
@@ -556,3 +556,21 @@ namespace io
 
 
 } // namespace io
+
+
+namespace std {
+
+   template <auto T0>
+   struct hash<io::intrusive_optional<T0>> {
+      auto operator()(const io::intrusive_optional<T0>& optional) const -> std::size_t
+      {
+         if (optional.has_value() == false)
+         {
+            return static_cast<std::size_t>(0);
+         }
+         using T = std::decay_t<decltype(T0)>;
+         return std::hash<T>{}(*optional);
+      }
+   };
+
+} // std

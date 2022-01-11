@@ -7,6 +7,14 @@
 namespace io
 {
 
+   inline auto assert(const bool value) -> void
+   {
+      if(value == false)
+      {
+         std::terminate();
+      }
+   }
+
    struct one_value
    {
       int a{};
