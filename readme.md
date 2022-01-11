@@ -42,8 +42,16 @@ In detail, safety mode does this:
 
 By default the safety mode is disabled so you can ignore that if you prefer.
 
+## Conversion from and to `std::optional`
+Conversion to `std::optional` can be done with the function `constexpr auto get_std() const -> std::optional<value_type>`. The other way around can only work if the null value is already known, so after construction. Therefore assignment works, i.e.:
+```c++
+std::optional<int> std_opt(42);
+io::intrusive_optional<-1> tight_optional;
+tight_optional = std_opt;
+```
+
 ## Compatibility with `std::optional`
-The first overload of [`std::make_optional`](https://en.cppreference.com/w/cpp/utility/optional/make_optional) is such that you can write `std::make_optional(5)` and the type (`int`) will be deduced automatically. That isn't possible with `intrusive_optional` since its instantiation requires a value and not just a type. Hence that overload is removed. You can still use the other overloads like `std::make_optional<my_type>(1, 2, 3)`.
+The first overload of [`std::make_optional`](https://en.cppreference.com/w/cpp/utility/optional/make_optional) is such that you can write `std::make_optional(5)` and the type (here: `int`) will be deduced automatically. That isn't possible with `intrusive_optional` since its instantiation requires a value and not just a type. Hence that overload is removed. You can still use the other overloads like `std::make_optional<my_type>(1, 2, 3)`.
 
 
 ## Motivation
@@ -54,4 +62,3 @@ My original motivation was building a concurrency type that was based on `std::a
 - operator= overloads 5 and 6
 - missing comparison operators
 - or_else etc, c++23 interface
-- operator= to and from std::optional?

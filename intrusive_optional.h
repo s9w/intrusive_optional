@@ -256,7 +256,42 @@ namespace io
 
 
 
+      // Assignment from std::optional
+      constexpr auto operator=(const std::optional<value_type>& std) -> intrusive_optional&
+      {
+         if(std.has_value() == false)
+         {
+            this->reset();
+         }
+         else
+         {
+            this->m_value = *std;
+         }
+         return *this;
+      }
 
+      constexpr auto operator=(std::optional<value_type>&& std) -> intrusive_optional&
+      {
+         if (std.has_value() == false)
+         {
+            this->reset();
+         }
+         else
+         {
+            this->m_value = std::move(*std);
+         }
+         return *this;
+      }
+
+
+      [[nodiscard]] constexpr auto get_std() const -> std::optional<value_type>
+      {
+         if(this->has_value() == false)
+         {
+            return std::nullopt;
+         }
+         return std::make_optional<value_type>(m_value);
+      }
 
 
 
