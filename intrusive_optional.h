@@ -131,10 +131,7 @@ namespace io
       template <class opt_type>
       constexpr auto construct_from_optional(opt_type&& opt) -> void
       {
-         if (this->has_value())
-         {
-            this->construct_from(*std::forward<opt_type>(opt));
-         }
+         this->construct_from(*std::forward<opt_type>(opt));
       }
 
 

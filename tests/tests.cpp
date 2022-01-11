@@ -5,6 +5,8 @@
 
 #include "tests_common.h"
 
+#include "../swl_optional.hpp"
+
 
 int main()
 {
@@ -12,6 +14,7 @@ int main()
    io::test_comparisons();
    io::test_assignments();
    io::test_safety();
+
 
    return 0;
 }

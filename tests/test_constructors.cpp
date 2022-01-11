@@ -31,11 +31,18 @@ namespace
       }
 
       {
-         //constexpr two_values_optional value = io::make_optional<two_values_optional::null_value>(3, 4);
          constexpr two_values_optional value(std::in_place, 2, 3);
          constexpr two_values_optional copy_target(value);
          static_assert(copy_target.has_value() == true);
          static_assert(copy_target == two_values_optional(std::in_place, 2, 3));
+      }
+
+      {
+         using one_value_optional = io::intrusive_optional < io::one_value{} > ;
+         const one_value_optional value(std::in_place, 2);
+         one_value_optional copy_target(value);
+         if (*value != *copy_target)
+            std::terminate();
       }
 
       return true;
@@ -44,17 +51,28 @@ namespace
 
    constexpr auto test_3() -> bool
    {
-      constexpr auto f = []() {
-         two_values_optional source(std::in_place, 2, 3);
-         two_values_optional copy = source;
-         two_values_optional target = std::move(source);
-         if (copy != target)
-            return false;
-         if (source.has_value() == false) // "If other contains a value [...] and does not make other empty"
-            return false;
-         return true;
-      };
-      static_assert(f() == true);
+      {
+         constexpr auto f = []() {
+            two_values_optional source(std::in_place, 2, 3);
+            two_values_optional copy = source;
+            two_values_optional target = std::move(source);
+            if (copy != target)
+               return false;
+            if (source.has_value() == false) // "If other contains a value [...] and does not make other empty"
+               return false;
+            return true;
+         };
+         static_assert(f() == true);
+      }
+      {
+         using one_value_optional = io::intrusive_optional < io::one_value{} > ;
+         one_value_optional value(std::in_place, 2);
+         one_value_optional copy_target(std::move(value));
+         if (*value != *copy_target)
+            std::terminate();
+         if (value.has_value() == false)
+            std::terminate();
+      }
 
       return true;
    }
@@ -62,11 +80,20 @@ namespace
 
    constexpr auto test_4() -> bool
    {
-      using type0 = io::intrusive_optional<io::one_value{0}>;
-      using type1 = io::intrusive_optional<io::one_value{-1}>;
-      constexpr type0 first(7);
-      constexpr type1 second(first);
-      static_assert(*first == *second);
+      {
+         using type0 = io::intrusive_optional < io::one_value{ 0 } > ;
+         using type1 = io::intrusive_optional < io::one_value{ -1 } > ;
+         constexpr type0 first(7);
+         constexpr type1 second(first);
+         static_assert(*first == *second);
+      }
+      {
+         using type0 = io::intrusive_optional < io::one_value{ 0 } > ;
+         using type1 = io::intrusive_optional < io::one_value{ -1 } > ;
+         constexpr type1 first(7);
+         constexpr type0 second(first);
+         static_assert(*first == *second);
+      }
       return true;
    }
 

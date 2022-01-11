@@ -10,7 +10,19 @@ namespace io
    struct one_value
    {
       int a{};
+      constexpr one_value() = default;
+      constexpr one_value(const one_value& other)
+         : a(other.a)
+      {
+         
+      }
+      constexpr one_value(int p) : a(p) {}
+      constexpr one_value(const std::initializer_list<int>& ilist)
+         : a(*ilist.begin())
+      {}
    };
+   static_assert(std::is_trivially_copy_constructible_v<one_value> == false);
+   static_assert(std::is_trivially_move_constructible_v<one_value> == false);
    constexpr auto operator==(const one_value& first, const one_value& second) -> bool
    {
       return first.a == second.a;
@@ -35,6 +47,13 @@ namespace io
 
       }
 
+      constexpr two_values(const two_values& other)
+         : m_a(other.m_a)
+         , m_b(other.m_b)
+      {
+         
+      }
+
       template<typename ... Args>
       constexpr two_values(const std::initializer_list<int>& ilist, Args&&... args)
          : m_a(*ilist.begin())
@@ -50,6 +69,8 @@ namespace io
 
       }
    };
+   static_assert(std::is_trivially_copy_constructible_v<two_values> == false);
+   static_assert(std::is_trivially_move_constructible_v<two_values> == false);
 
    [[nodiscard]] constexpr auto operator==(const two_values& first, const two_values& second) -> bool
    {
