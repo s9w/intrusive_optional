@@ -11,13 +11,6 @@ namespace io
 #define SWL_MOV(x) static_cast<std::remove_reference_t<decltype(x)>&&>(x)
 #define SWL_FWD(x) static_cast<decltype(x)&&>(x)
 
-   struct bad_optional_access final : ::std::exception {
-      [[nodiscard]] auto what() const noexcept -> const char* override
-      {
-         return "Bad intrusive_optional access";
-      }
-   };
-
    // requires constexpr null-value and constexpr copy constructor
    template<auto null_value_param>
    struct intrusive_optional
@@ -279,7 +272,7 @@ namespace io
       {
          if (this->has_value() == false)
          {
-            throw bad_optional_access{};
+            throw std::bad_optional_access{};
          }
          return this->m_value;
       }
@@ -288,7 +281,7 @@ namespace io
       {
          if (this->has_value() == false)
          {
-            throw bad_optional_access{};
+            throw std::bad_optional_access{};
          }
          return this->m_value;
       }
@@ -297,7 +290,7 @@ namespace io
       {
          if (this->has_value() == false)
          {
-            throw bad_optional_access{};
+            throw std::bad_optional_access{};
          }
          return ::std::move(this->m_value);
       }
@@ -306,7 +299,7 @@ namespace io
       {
          if (this->has_value() == false)
          {
-            throw bad_optional_access{};
+            throw std::bad_optional_access{};
          }
          return ::std::move(this->m_value);
       }
