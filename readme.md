@@ -35,12 +35,12 @@ using safe_int_optional = io::intrusive_optional<-1, io::safety_mode::safe>
 
 In detail, safety mode does this:
 
-- [Constructors (6), (7) and (8)](https://en.cppreference.com/w/cpp/utility/optional/optional) throw when resulting in the null value
-- [`operator=` overload (4)](https://en.cppreference.com/w/cpp/utility/optional/operator%3D) throws when resulting in the null value
-- All [`emplace`](https://en.cppreference.com/w/cpp/utility/optional/emplace) overloads throw when resulting in the null value
+- [Constructors (6), (7) and (8)](https://en.cppreference.com/w/cpp/utility/optional/optional) throw `io::unintentionally_null` when resulting in the null value
+- [`operator=` overload (4)](https://en.cppreference.com/w/cpp/utility/optional/operator%3D) throw `io::unintentionally_null` when resulting in the null value
+- All [`emplace`](https://en.cppreference.com/w/cpp/utility/optional/emplace) overloads throw `io::unintentionally_null` when resulting in the null value
 - Non-`const` overloads of `operator*()` and `value()` are disabled
 
-By default this is disabled so you can ignore that if you prefer.
+By default the safety mode is disabled so you can ignore that if you prefer.
 
 ## Compatibility with `std::optional`
 The first overload of [`std::make_optional`](https://en.cppreference.com/w/cpp/utility/optional/make_optional) is such that you can write `std::make_optional(5)` and the type (`int`) will be deduced automatically. That isn't possible with `intrusive_optional` since its instantiation requires a value and not just a type. Hence that overload is removed. You can still use the other overloads like `std::make_optional<my_type>(1, 2, 3)`.
@@ -54,6 +54,5 @@ My original motivation was building a concurrency type that was based on `std::a
 - operator= overloads 5 and 6
 - missing comparison operators
 - or_else etc, c++23 interface
-- get rid of macros
 - specialize hash
 - operator= to and from std::optional?

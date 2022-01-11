@@ -8,8 +8,6 @@
 
 namespace io
 {
-#define SWL_MOV(x) static_cast<std::remove_reference_t<decltype(x)>&&>(x)
-#define SWL_FWD(x) static_cast<decltype(x)&&>(x)
 
    struct unintentionally_null final : std::exception {
       [[nodiscard]] auto what() const noexcept -> const char* override
@@ -61,7 +59,7 @@ namespace io
          noexcept(std::is_nothrow_move_constructible_v<value_type>)
          requires (std::is_move_constructible_v<value_type> && std::is_trivially_move_constructible_v<value_type> == false)
       {
-         this->construct_from_optional(SWL_FWD(other));
+         this->construct_from_optional(std::forward<intrusive_optional>(other));
       }
 
 
@@ -90,7 +88,7 @@ namespace io
       template <auto U0, typename U = std::decay_t<decltype(U0)>> requires requirement_4_and_5<U0>
       constexpr explicit(std::is_convertible_v<U, value_type> == false) intrusive_optional(intrusive_optional<U0>&& other)
       {
-         this->construct_from_optional(SWL_FWD(other));
+         this->construct_from_optional(std::forward<intrusive_optional<U0>>(other));
       }
 
 
@@ -98,7 +96,7 @@ namespace io
       template<typename ... Args>
       constexpr explicit intrusive_optional(std::in_place_t, Args&&... args)
       {
-         this->construct_from(SWL_FWD(args)...);
+         this->construct_from(std::forward<Args>(args)...);
          this->ensure_not_zero();
       }
 
@@ -108,7 +106,7 @@ namespace io
       constexpr explicit intrusive_optional(std::in_place_t, std::initializer_list<U> ilist, Args&&... args)
          requires std::is_constructible_v<value_type, std::initializer_list<U>&, Args...>
       {
-         this->construct_from(ilist, SWL_FWD(args)...);
+         this->construct_from(ilist, std::forward<Args>(args)...);
          this->ensure_not_zero();
       }
 
@@ -120,7 +118,7 @@ namespace io
             && std::is_same_v<std::remove_cvref_t<U>, std::in_place_t> == false
             && std::is_same_v<std::remove_cvref_t<U>, intrusive_optional> == false)
       {
-         this->construct_from(SWL_FWD(u));
+         this->construct_from(std::forward<U>(u));
          this->ensure_not_zero();
       }
 
@@ -135,7 +133,7 @@ namespace io
       {
          if (this->has_value())
          {
-            this->construct_from(*SWL_FWD(opt));
+            this->construct_from(*std::forward<opt_type>(opt));
          }
       }
 
@@ -170,11 +168,11 @@ namespace io
          {
             if(this->has_value())
             {
-               **this = *SWL_FWD(other);
+               **this = *std::forward<Opt>(other);
             }
             else
             {
-               this->construct_from(*SWL_FWD(other));
+               this->construct_from(*std::forward<Opt>(other));
             }
          }
       }
@@ -233,7 +231,7 @@ namespace io
       -> intrusive_optional&
          requires assignment_3_cond
       {
-         this->assign_from_optional(SWL_FWD(other));
+         this->assign_from_optional(std::forward<intrusive_optional>(other));
          return *this;
       }
 
@@ -249,11 +247,11 @@ namespace io
       {
          if (this->has_value())
          {
-            this->m_value = SWL_FWD(u);
+            this->m_value = std::forward<U>(u);
          }
          else
          {
-            this->construct_from(SWL_FWD(u));
+            this->construct_from(std::forward<U>(u));
          }
          this->ensure_not_zero();
          return *this;
@@ -413,7 +411,7 @@ namespace io
          constexpr auto emplace(Args&&... args) -> void
       {
          this->reset();
-         this->construct_from(SWL_FWD(args)...);
+         this->construct_from(std::forward<Args>(args)...);
          this->ensure_not_zero();
       }
 
@@ -424,7 +422,7 @@ namespace io
          constexpr auto emplace(std::initializer_list<U> ilist, Args&&... args) -> void
       {
          this->reset();
-         this->construct_from(ilist, SWL_FWD(args)...);
+         this->construct_from(ilist, std::forward<Args>(args)...);
          this->ensure_not_zero();
       }
 
@@ -543,7 +541,7 @@ namespace io
    template <auto T0, class U, class... Args>
    constexpr auto make_optional(std::initializer_list<U> il, Args&&... args) -> intrusive_optional<T0>
    {
-      return intrusive_optional<T0> {std::in_place, il, SWL_FWD(args)...};
+      return intrusive_optional<T0> {std::in_place, il, std::forward<Args>(args)...};
    }
 
 
