@@ -381,11 +381,6 @@ namespace io
       }
 
 
-
-      // Modifiers: emplace
-      // TODO
-
-
    }; // intrusive_optional
 
 
@@ -398,11 +393,10 @@ namespace io
    }
 
    // make_optional (3)
-   // initializer_list are stupids
-   //template <auto T0, class U, class... Args>
-   //constexpr auto make_optional(std::initializer_list<U> il, Args&&... args) {
-   //   return intrusive_optional<T0> {std::in_place, il, SWL_FWD(args)...};
-   //}
+   template <auto T0, class U, class... Args>
+   constexpr auto make_optional(std::initializer_list<U> il, Args&&... args) {
+      return intrusive_optional<T0> {std::in_place, il, SWL_FWD(args)...};
+   }
 
 
 
