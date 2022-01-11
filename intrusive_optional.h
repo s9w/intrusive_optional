@@ -10,7 +10,7 @@ namespace io
 {
 
    struct unintentionally_null final : std::exception {
-      [[nodiscard]] auto what() const noexcept -> const char* override
+      auto what() const noexcept -> const char* override
       {
          return "The value of this intrusive_optional was set to the declared null_value unintentionally.";
       }
@@ -18,7 +18,7 @@ namespace io
 
    enum class safety_mode{unsafe, safe};
 
-   // intrusive_optional requires constexpr null-value and constexpr copy constructor
+   // intrusive_optional requires compile-time null-value
    template<auto null_value_param, safety_mode mode = safety_mode::unsafe>
    struct intrusive_optional
    {
@@ -155,7 +155,7 @@ namespace io
          // by calling its destructor. *this does not contain a value after the call."
          if(this->has_value() && other.has_value() == false)
          {
-            this->reset_impl();
+            this->reset();
          }
 
          // "If other contains a value, then depending on whether *this contains a value, the
@@ -261,12 +261,12 @@ namespace io
 
 
       // Observers: operator->
-      [[nodiscard]] constexpr auto operator->() -> value_type*
+      constexpr auto operator->() -> value_type*
       {
          return ::std::addressof(this->m_value);
       }
 
-      [[nodiscard]] constexpr auto operator->() const -> const value_type*
+      constexpr auto operator->() const -> const value_type*
       {
          return ::std::addressof(this->m_value);
       }
@@ -274,24 +274,24 @@ namespace io
 
 
       // Observers: operator*
-      [[nodiscard]] constexpr auto operator*() const& -> const value_type&
+      constexpr auto operator*() const& -> const value_type&
       {
          return this->m_value;
       }
 
-      [[nodiscard]] constexpr auto operator*() & -> value_type&
+      constexpr auto operator*() & -> value_type&
          requires(mode == safety_mode::unsafe)
       {
          return this->m_value;
       }
 
-      [[nodiscard]] constexpr auto operator*() && -> value_type&&
+      constexpr auto operator*() && -> value_type&&
          requires(mode == safety_mode::unsafe)
       {
          return ::std::move(this->m_value);
       }
 
-      [[nodiscard]] constexpr auto operator*() const&& -> const value_type&&
+      constexpr auto operator*() const&& -> const value_type&&
       {
          return ::std::move(this->m_value);
       }
@@ -307,7 +307,7 @@ namespace io
 
 
       // Observers: has_value
-      [[nodiscard]] constexpr auto has_value() const noexcept -> bool
+      constexpr auto has_value() const noexcept -> bool
       {
          const bool is_equal_to_null = this->m_value == null_value;
          return is_equal_to_null == false;
@@ -316,7 +316,7 @@ namespace io
 
 
       // Observers: value
-      [[nodiscard]] constexpr auto value() const & -> const value_type&
+      constexpr auto value() const & -> const value_type&
       {
          if (this->has_value() == false)
          {
@@ -325,7 +325,7 @@ namespace io
          return this->m_value;
       }
 
-      [[nodiscard]] constexpr auto value() & -> value_type&
+      constexpr auto value() & -> value_type&
          requires(mode == safety_mode::unsafe)
       {
          if (this->has_value() == false)
@@ -335,7 +335,7 @@ namespace io
          return this->m_value;
       }
 
-      [[nodiscard]] constexpr auto value() && -> value_type&&
+      constexpr auto value() && -> value_type&&
          requires(mode == safety_mode::unsafe)
       {
          if (this->has_value() == false)
@@ -345,7 +345,7 @@ namespace io
          return ::std::move(this->m_value);
       }
 
-      [[nodiscard]] constexpr auto value() const && -> const value_type&&
+      constexpr auto value() const && -> const value_type&&
       {
          if (this->has_value() == false)
          {
@@ -358,7 +358,7 @@ namespace io
 
       // Observers: value_or
       template <class U> requires (std::is_copy_constructible_v<value_type> && std::is_convertible_v<U&&, value_type>)
-         [[nodiscard]] constexpr auto value_or(U&& default_value) const& -> value_type
+         constexpr auto value_or(U&& default_value) const& -> value_type
       {
          if (this->has_value())
          {
@@ -369,7 +369,7 @@ namespace io
       }
 
       template <class U> requires (std::is_move_constructible_v<value_type>&& std::is_convertible_v<U&&, value_type>)
-         [[nodiscard]] constexpr auto value_or(U&& default_value) && -> value_type
+         constexpr auto value_or(U&& default_value) && -> value_type
       {
          if (this->has_value())
          {
@@ -433,16 +433,6 @@ namespace io
             return;
          }
 
-         this->reset_impl();
-      }
-
-
-      constexpr auto reset_impl() noexcept -> void
-      {
-         if constexpr (std::is_trivially_destructible_v<value_type> == false)
-         {
-            this->m_value.~value_type();
-         }
          this->m_value = null_value;
       }
 
@@ -529,7 +519,7 @@ namespace io
 
    // make_optional (2)
    template <auto T0, class... Args>
-   [[nodiscard]] constexpr auto make_optional(Args&&... args) -> intrusive_optional<T0>
+   constexpr auto make_optional(Args&&... args) -> intrusive_optional<T0>
    {
       return intrusive_optional<T0>{std::in_place, std::forward<Args>(args)...};
    }
@@ -558,8 +548,8 @@ namespace io
 } // namespace io
 
 
-namespace std {
-
+namespace std
+{
    template <auto T0>
    struct hash<io::intrusive_optional<T0>> {
       auto operator()(const io::intrusive_optional<T0>& optional) const -> std::size_t
