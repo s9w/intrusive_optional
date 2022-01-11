@@ -340,6 +340,24 @@ namespace io
       }
 
 
+      // Modifiers: emplace
+      template <class... Args>
+      requires std::is_constructible_v<value_type, Args...>
+         constexpr auto emplace(Args&&... args) -> void
+      {
+         this->reset();
+         this->construct_from(SWL_FWD(args)...);
+      }
+
+      template <class U, class... Args>
+      requires std::is_constructible_v<value_type, std::initializer_list<U>&, Args...>
+         constexpr auto emplace(std::initializer_list<U> ilist, Args&&... args) -> void
+      {
+         this->reset();
+         this->construct_from(ilist, SWL_FWD(args)...);
+      }
+
+
 
       // Modifiers: reset
       constexpr auto reset() noexcept -> void
