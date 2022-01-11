@@ -7,7 +7,7 @@
 namespace io
 {
 
-   inline auto assert(const bool value) -> void
+   constexpr auto assert(const bool value) -> void
    {
       if(value == false)
       {

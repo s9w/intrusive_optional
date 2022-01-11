@@ -41,8 +41,7 @@ namespace
          using one_value_optional = io::intrusive_optional < io::one_value{} > ;
          const one_value_optional value(std::in_place, 2);
          one_value_optional copy_target(value);
-         if (*value != *copy_target)
-            std::terminate();
+         io::assert(*value == *copy_target);
       }
 
       return true;
@@ -68,10 +67,8 @@ namespace
          using one_value_optional = io::intrusive_optional < io::one_value{} > ;
          one_value_optional value(std::in_place, 2);
          one_value_optional copy_target(std::move(value));
-         if (*value != *copy_target)
-            std::terminate();
-         if (value.has_value() == false)
-            std::terminate();
+         io::assert(*value == *copy_target);
+         io::assert(value.has_value());
       }
 
       return true;

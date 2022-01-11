@@ -26,10 +26,7 @@ namespace
    {
       using opt_type = io::intrusive_optional<-1, io::safety_mode::safe>;
       constexpr auto lambda = []() {opt_type value(std::in_place, -1); };
-      if (has_thrown(lambda) == false)
-      {
-         std::terminate();
-      }
+      io::assert(has_thrown(lambda));
 
       return true;
    }
@@ -38,10 +35,7 @@ namespace
    auto test_ctor_7() -> bool
    {
       constexpr auto lambda = []() {two_values_optional_safe value(std::in_place, {0}, 0); };
-      if (has_thrown(lambda) == false)
-      {
-         std::terminate();
-      }
+      io::assert(has_thrown(lambda));
 
       return true;
    }
@@ -51,11 +45,7 @@ namespace
    {
       using opt_type = io::intrusive_optional<-1, io::safety_mode::safe>;
       constexpr auto lambda = []() {opt_type value(-1); };
-      if (has_thrown(lambda) == false)
-      {
-         std::terminate();
-      }
-
+      io::assert(has_thrown(lambda));
       return true;
    }
 
@@ -68,11 +58,7 @@ namespace
          opt_type value;
          value = 0ui8;
       };
-      if (has_thrown(lambda) == false)
-      {
-         std::terminate();
-      }
-
+      io::assert(has_thrown(lambda));
       return true;
    }
 
@@ -108,11 +94,7 @@ namespace
          two_values_optional_safe value;
          value.emplace(0, 0);
       };
-      if (has_thrown(lambda) == false)
-      {
-         std::terminate();
-      }
-
+      io::assert(has_thrown(lambda));
       return true;
    }
 
@@ -124,11 +106,7 @@ namespace
          two_values_optional_safe value;
          value.emplace({ 0 }, 0);
       };
-      if (has_thrown(lambda) == false)
-      {
-         std::terminate();
-      }
-
+      io::assert(has_thrown(lambda));
       return true;
    }
    
