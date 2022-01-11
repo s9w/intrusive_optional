@@ -259,7 +259,7 @@ namespace io
       // Observers: value
       [[nodiscard]] constexpr auto value() const & -> const value_type&
       {
-         if (this->has_value == false)
+         if (this->has_value() == false)
          {
             throw bad_optional_access{};
          }
@@ -268,7 +268,7 @@ namespace io
 
       [[nodiscard]] constexpr auto value() & -> value_type&
       {
-         if (this->has_value == false)
+         if (this->has_value() == false)
          {
             throw bad_optional_access{};
          }
@@ -277,7 +277,7 @@ namespace io
 
       [[nodiscard]] constexpr auto value() && -> value_type&&
       {
-         if (this->has_value == false)
+         if (this->has_value() == false)
          {
             throw bad_optional_access{};
          }
