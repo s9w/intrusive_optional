@@ -3,6 +3,7 @@
 #include <exception>
 #include <utility>
 #include <optional>
+#include <tuple> // should be free from <optional>
 
 
 namespace io
@@ -384,17 +385,94 @@ namespace io
    }; // intrusive_optional
 
 
+   // Non-member functions; comparisons (1-6)
+   template <auto T, auto U>
+   constexpr auto operator==(const intrusive_optional<T>& lhs, const intrusive_optional<U>& rhs) -> bool
+      requires requires { bool(*lhs == *rhs); }
+   {
+      if (bool(lhs) != bool(rhs))
+         return false;
+      if (bool(lhs) == false)
+         return true;
+      return *lhs == *rhs;
+   }
+
+   // comparison (2)
+   template <auto T, auto U>
+   constexpr auto operator!=(const intrusive_optional<T>& lhs, const intrusive_optional<U>& rhs) -> bool
+      requires requires { bool(*lhs != *rhs); }
+   {
+      if (bool(lhs) != bool(rhs))
+         return true;
+      if (bool(lhs) == false)
+         return false;
+      return *lhs != *rhs;
+   }
+
+   // comparison (3)
+   template <auto T, auto U>
+   constexpr auto operator<(const intrusive_optional<T>& lhs, const intrusive_optional<U>& rhs) -> bool
+      requires requires { bool(*lhs < *rhs); }
+   {
+      if (bool(rhs) == false)
+         return false;
+      if (bool(lhs) == false)
+         return true;
+      return *lhs < *rhs;
+   }
+
+   // comparison (4)
+   template <auto T, auto U>
+   constexpr auto operator<=(const intrusive_optional<T>& lhs, const intrusive_optional<U>& rhs) -> bool
+      requires requires { bool(*lhs <= *rhs); }
+   {
+      if (bool(lhs) == false)
+         return true;
+      if (bool(rhs) == false)
+         return false;
+      return *lhs <= *rhs;
+   }
+   
+
+   // comparison (5)
+   template <auto T, auto U>
+   constexpr auto operator>(const intrusive_optional<T>& lhs, const intrusive_optional<U>& rhs) -> bool
+      requires requires { bool(*lhs > * rhs); }
+   {
+      if (bool(lhs) == false)
+         return false;
+      if (bool(rhs) == false)
+         return true;
+      return *lhs > *rhs;
+   }
+
+   // comparison (6)
+   template <auto T, auto U>
+   constexpr auto operator>=(const intrusive_optional<T>& lhs, const intrusive_optional<U>& rhs) -> bool
+      requires requires { bool(*lhs >= *rhs); }
+   {
+      if (bool(lhs) == false)
+         return false;
+      if (bool(rhs) == false)
+         return true;
+      return *lhs >= *rhs;
+   }
+
+
+
    // make_optional (1) not implemented because implicit argument deduction from parameter no longer possible
 
    // make_optional (2)
    template <auto T0, class... Args>
-   [[nodiscard]] constexpr auto make_optional(Args&&... args) {
+   [[nodiscard]] constexpr auto make_optional(Args&&... args) -> intrusive_optional<T0>
+   {
       return intrusive_optional<T0>{std::in_place, std::forward<Args>(args)...};
    }
 
    // make_optional (3)
    template <auto T0, class U, class... Args>
-   constexpr auto make_optional(std::initializer_list<U> il, Args&&... args) {
+   constexpr auto make_optional(std::initializer_list<U> il, Args&&... args) -> intrusive_optional<T0>
+   {
       return intrusive_optional<T0> {std::in_place, il, SWL_FWD(args)...};
    }
 
