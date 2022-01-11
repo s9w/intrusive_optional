@@ -121,7 +121,4 @@ auto io::test_constructors() -> void
    test_6();
    test_7();
    test_8();
-
-   
-   int end = 0;
 }

@@ -79,6 +79,4 @@ auto io::test_assignments() -> void
    test_2();
    test_3();
    test_4();
-   
-   int end = 0;
 }

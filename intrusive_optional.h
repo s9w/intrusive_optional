@@ -234,7 +234,7 @@ namespace io
          return *this;
       }
 
-      // operator= (5, 6 not implemented
+      // TODO operator= (5) and (6)
 
 
 
@@ -336,45 +336,45 @@ namespace io
 
       // Observers: value_or
       template <class U> requires (std::is_copy_constructible_v<value_type> && std::is_convertible_v<U&&, value_type>)
-         [[nodiscard]] constexpr auto value_or(U&& right) const& -> value_type
+         [[nodiscard]] constexpr auto value_or(U&& default_value) const& -> value_type
       {
          if (this->has_value())
          {
             return this->m_value;
          }
 
-         return static_cast<value_type>(::std::forward<U>(right));
+         return static_cast<value_type>(::std::forward<U>(default_value));
       }
 
       template <class U> requires (std::is_move_constructible_v<value_type>&& std::is_convertible_v<U&&, value_type>)
-         [[nodiscard]] constexpr auto value_or(U&& right) && -> value_type
+         [[nodiscard]] constexpr auto value_or(U&& default_value) && -> value_type
       {
          if (this->has_value())
          {
             return ::std::move(this->m_value);
          }
 
-         return static_cast<value_type>(::std::forward<U>(right));
+         return static_cast<value_type>(::std::forward<U>(default_value));
       }
 
 
 
       // Modifiers: swap
-      constexpr void swap(intrusive_optional& right)
+      constexpr void swap(intrusive_optional& other)
          noexcept(std::is_nothrow_move_constructible_v<value_type> && std::is_nothrow_swappable_v<value_type>)
          requires std::is_move_constructible_v<value_type>
       {
-         if (this->has_value() == false && right.has_value() == false)
+         if (this->has_value() == false && other.has_value() == false)
          {
             return;
          }
-         if (this->has_value() && right.has_value())
+         if (this->has_value() && other.has_value())
          {
-            ::std::swap(this->m_value, right.m_value);
+            ::std::swap(this->m_value, other.m_value);
             return;
          }
-         intrusive_optional& source = this->has_value() ? *this : right;
-         intrusive_optional& target = this->has_value() ? right : *this;
+         intrusive_optional& source = this->has_value() ? *this : other;
+         intrusive_optional& target = this->has_value() ? other : *this;
          std::construct_at(std::addressof(target), *source);
          source.reset();
       }
@@ -497,9 +497,11 @@ namespace io
       return *lhs >= *rhs;
    }
 
+   // TODO other comparison operators
 
 
-   // make_optional (1) not implemented because implicit argument deduction from parameter no longer possible
+   // make_optional (1) not implemented because automatic deduction of the full type isn't possible
+   // with intrusive_optional since it requires a value and not just a type to instantiate.
 
    // make_optional (2)
    template <auto T0, class... Args>
