@@ -76,6 +76,7 @@ namespace io
          this->construct_from_optional(other);
       }
 
+
       // Constructors: (5)
       template <auto U0, typename U = std::decay_t<decltype(U0)>> requires requirement_4_and_5<U0>
       constexpr explicit(std::is_convertible_v<U, value_type> == false) intrusive_optional(intrusive_optional<U0>&& other)
@@ -90,6 +91,7 @@ namespace io
       {
          this->construct_from(SWL_FWD(args)...);
       }
+
 
       // Constructors: (7)
       template <class U, class... Args>
@@ -176,12 +178,14 @@ namespace io
          m_value.~value_type();
       }
 
-      // operator=
+
+      // operator= conditions
       static constexpr inline bool assignment_2_cond = std::is_copy_constructible_v<value_type> && std::is_copy_assignable_v<value_type>;
       static constexpr inline bool assignment_2_trivial_cond = std::is_trivially_copy_constructible_v<value_type> && std::is_trivially_copy_assignable_v<value_type> && std::is_trivially_destructible_v<value_type>;
       static constexpr inline bool assignment_3_cond = std::is_move_constructible_v<value_type> && std::is_move_assignable_v<value_type>;
       static constexpr inline bool assignment_3_trivial_cond = std::is_trivially_move_constructible_v<value_type> && std::is_trivially_move_assignable_v<value_type> && std::is_trivially_destructible_v<value_type>;
 
+      // operator= (2)
       constexpr auto operator=(const intrusive_optional<null_value_param>&) -> intrusive_optional<null_value_param>&
          requires (assignment_2_cond && assignment_2_trivial_cond) = default;
 
@@ -192,19 +196,43 @@ namespace io
          return *this;
       }
 
-      constexpr auto operator=(intrusive_optional<null_value_param>&&) -> intrusive_optional<null_value_param>&
+
+      // operator= (3)
+      constexpr auto operator=(intrusive_optional<null_value_param>&&)
+         noexcept(std::is_nothrow_move_assignable_v<value_type>&& std::is_nothrow_move_constructible_v<value_type>)
+         -> intrusive_optional<null_value_param>&
          requires (assignment_3_cond && assignment_3_trivial_cond)
          = default;
 
-      constexpr intrusive_optional<null_value_param>& operator=(intrusive_optional<null_value_param>&& other) noexcept
+      constexpr intrusive_optional<null_value_param>& operator=(intrusive_optional<null_value_param>&& other)
+         noexcept(std::is_nothrow_move_assignable_v<value_type>&& std::is_nothrow_move_constructible_v<value_type>)
          requires assignment_3_cond
       {
          this->assign_from_optional(SWL_FWD(other));
          return *this;
       }
 
+
       // operator= (4)
-      // can't implement due to requirements can't be checked compile-time
+      template <class U = value_type>
+      requires
+         (std::is_same_v<std::remove_cvref_t<U>, intrusive_optional> == false
+            && (std::is_scalar_v<value_type> == false || std::is_same_v<value_type, std::decay_t<U>> == false)
+            && std::is_constructible_v<value_type, U>
+            && std::is_assignable_v<value_type&, U>)
+         constexpr auto operator=(U&& u)
+      -> intrusive_optional&
+      {
+         if (this->has_value())
+         {
+            **this = SWL_FWD(u);
+         }
+         else
+         {
+            this->construct_from(SWL_FWD(u));
+         }
+         return *this;
+      }
 
       // operator= (5, 6 not implemented
 
