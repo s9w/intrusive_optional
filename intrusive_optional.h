@@ -255,6 +255,19 @@ namespace io
       }
 
 
+      // Construction from std::optional
+      explicit constexpr intrusive_optional(const std::optional<value_type>& std)
+         : m_value(std.has_value() ? *std : null_value_param)
+      {
+         
+      }
+
+
+      explicit constexpr intrusive_optional(std::optional<value_type>&& std)
+         : m_value(std.has_value() ? std::move(*std) : null_value_param)
+      {
+
+      }
 
       // Assignment from std::optional
       constexpr auto operator=(const std::optional<value_type>& std) -> intrusive_optional&

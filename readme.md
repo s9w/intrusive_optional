@@ -42,14 +42,19 @@ In detail, safety mode does this:
 By default the safety mode is disabled so you can ignore that if you prefer.
 
 ## Conversion from and to `std::optional`
-Conversion to `std::optional` are provided by the function `constexpr auto get_std() const -> std::optional<value_type>`.
+Conversion **to** `std::optional` are provided by the function `constexpr auto get_std() const -> std::optional<value_type>`.
 
-The other way around can only work if the null value is already known, which is after construction. Therefore assignment works, i.e.:
+Converting **from** `std::optional` to an `intrusive_optional` can either be done by constructor or assignment.
 
 ```c++
 std::optional<int> std_opt(42);
-io::intrusive_optional<-1> tight_optional;
-tight_optional = std_opt;
+
+// Construction
+io::intrusive_optional<-1> tight_optional0(std_opt);
+
+// Assignment
+io::intrusive_optional<-1> tight_optional1;
+tight_optional1 = std_opt;
 ```
 
 ## Compatibility with `std::optional`

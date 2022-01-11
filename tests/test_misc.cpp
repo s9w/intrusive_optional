@@ -68,6 +68,35 @@ namespace
 
       return true;
    }
+
+
+   auto test_construction_from_std() -> bool
+   {
+      using opt_type = io::intrusive_optional<-1>;
+      {
+         std::optional<int> std;
+         opt_type opt(std);
+         io::assert(opt.has_value() == false);
+      }
+      {
+         std::optional<int> std(5);
+         opt_type opt(std);
+         io::assert(*opt == *std);
+      }
+
+      {
+         std::optional<int> std;
+         opt_type opt(std::move(std));
+         io::assert(opt.has_value() == false);
+      }
+      {
+         std::optional<int> std(5);
+         opt_type opt(std::move(std));
+         io::assert(*opt == *std);
+      }
+
+      return true;
+   }
    
 } // namespace {}
 
@@ -77,4 +106,5 @@ auto io::test_misc() -> void
    test_hash();
    test_assignment_from_std();
    test_conversion_to_std();
+   test_construction_from_std();
 }
