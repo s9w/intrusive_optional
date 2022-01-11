@@ -138,11 +138,13 @@ namespace io
          }
       }
 
+
       template <class... Args>
       constexpr auto construct_from(Args&&... args) -> void
       {
          std::construct_at(std::addressof(m_value), static_cast<Args&&>(args)...);
       }
+
 
       template <typename Opt>
       constexpr auto assign_from_optional(Opt&& other) -> void
@@ -175,6 +177,7 @@ namespace io
             }
          }
       }
+
 
       constexpr auto ensure_not_zero() const -> void
       {
@@ -241,17 +244,17 @@ namespace io
             && (std::is_scalar_v<value_type> == false || std::is_same_v<value_type, std::decay_t<U>> == false)
             && std::is_constructible_v<value_type, U>
             && std::is_assignable_v<value_type&, U>)
-         constexpr auto operator=(U&& u)
-      -> intrusive_optional&
+         constexpr auto operator=(U&& u) -> intrusive_optional&
       {
          if (this->has_value())
          {
-            **this = SWL_FWD(u);
+            this->m_value = SWL_FWD(u);
          }
          else
          {
             this->construct_from(SWL_FWD(u));
          }
+         ensure_not_zero();
          return *this;
       }
 

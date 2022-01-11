@@ -22,7 +22,7 @@ namespace
 
 
 
-   auto test_6() -> bool
+   auto test_ctor_6() -> bool
    {
       using opt_type = io::intrusive_optional<-1, io::safety_mode::safe>;
       constexpr auto lambda = []() {opt_type value(std::in_place, -1); };
@@ -35,7 +35,7 @@ namespace
    }
 
 
-   auto test_7() -> bool
+   auto test_ctor_7() -> bool
    {
       constexpr auto lambda = []() {two_values_optional_safe value(std::in_place, {0}, 0); };
       if (has_thrown(lambda) == false)
@@ -47,10 +47,27 @@ namespace
    }
 
 
-   auto test_8() -> bool
+   auto test_ctor_8() -> bool
    {
       using opt_type = io::intrusive_optional<-1, io::safety_mode::safe>;
       constexpr auto lambda = []() {opt_type value(-1); };
+      if (has_thrown(lambda) == false)
+      {
+         std::terminate();
+      }
+
+      return true;
+   }
+
+
+   auto test_assignment_4() -> bool
+   {
+      using opt_type = io::intrusive_optional<0, io::safety_mode::safe>;
+      auto lambda = []()
+      {
+         opt_type value;
+         value = 0ui8;
+      };
       if (has_thrown(lambda) == false)
       {
          std::terminate();
@@ -89,9 +106,10 @@ namespace
 
 auto io::test_safety() -> void
 {
-   test_6();
-   test_7();
-   test_8();
+   test_ctor_6();
+   test_ctor_7();
+   test_ctor_8();
+   test_assignment_4();
    test_operator_star();
    test_value();
 }
