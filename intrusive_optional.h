@@ -22,7 +22,7 @@ namespace io
    template<auto null_value_param, safety_mode_t safety_mode = safety_mode_t::unsafe>
    struct intrusive_optional
    {
-      using value_type = std::decay_t<decltype(null_value_param)>;
+      using value_type = decltype(null_value_param);
 
       constexpr inline static value_type null_value{ null_value_param };
    private:
@@ -71,10 +71,10 @@ namespace io
          && std::is_constructible_v<value_type, const intrusive_optional<U0>&>  == false
          && std::is_constructible_v<value_type,       intrusive_optional<U0>&&> == false
          && std::is_constructible_v<value_type, const intrusive_optional<U0>&&> == false
-         && std::is_convertible_v<      intrusive_optional<U0>&,  value_type> == false
-         && std::is_convertible_v<const intrusive_optional<U0>&,  value_type> == false
-         && std::is_convertible_v<      intrusive_optional<U0>&&, value_type> == false
-         && std::is_convertible_v<const intrusive_optional<U0>&&, value_type> == false;
+         && std::is_convertible_v<      intrusive_optional<U0>&,  value_type>   == false
+         && std::is_convertible_v<const intrusive_optional<U0>&,  value_type>   == false
+         && std::is_convertible_v<      intrusive_optional<U0>&&, value_type>   == false
+         && std::is_convertible_v<const intrusive_optional<U0>&&, value_type>   == false;
 
       // Constructors: (4)
       template <auto U0, typename U = decltype(U0)>
@@ -198,19 +198,21 @@ namespace io
          && std::is_constructible_v<value_type, const intrusive_optional<U0>& > == false
          && std::is_constructible_v<value_type,       intrusive_optional<U0>&&> == false
          && std::is_constructible_v<value_type, const intrusive_optional<U0>&&> == false
-         && std::is_convertible_v<      intrusive_optional<U0>&,  value_type> == false
-         && std::is_convertible_v<const intrusive_optional<U0>&,  value_type> == false
-         && std::is_convertible_v<      intrusive_optional<U0>&&, value_type> == false
-         && std::is_convertible_v<const intrusive_optional<U0>&&, value_type> == false
-         && std::is_assignable_v<value_type&,       intrusive_optional<U0>&>  == false
-         && std::is_assignable_v<value_type&, const intrusive_optional<U0>&>  == false
-         && std::is_assignable_v<value_type&,       intrusive_optional<U0>&&> == false
-         && std::is_assignable_v<value_type&, const intrusive_optional<U0>&&> == false;
+         && std::is_convertible_v<      intrusive_optional<U0>&,  value_type>   == false
+         && std::is_convertible_v<const intrusive_optional<U0>&,  value_type>   == false
+         && std::is_convertible_v<      intrusive_optional<U0>&&, value_type>   == false
+         && std::is_convertible_v<const intrusive_optional<U0>&&, value_type>   == false
+         && std::is_assignable_v<value_type&,       intrusive_optional<U0>&>    == false
+         && std::is_assignable_v<value_type&, const intrusive_optional<U0>&>    == false
+         && std::is_assignable_v<value_type&,       intrusive_optional<U0>&&>   == false
+         && std::is_assignable_v<value_type&, const intrusive_optional<U0>&&>   == false;
 
       // operator= (5)
       template <auto U0>
       constexpr auto operator=(const intrusive_optional<U0>& other) -> intrusive_optional&
-         requires (common_56_condition<U0> && std::is_constructible_v<value_type, const decltype(U0)&> && std::is_assignable_v<value_type&, const decltype(U0)&>)
+         requires (common_56_condition<U0>
+            && std::is_constructible_v<value_type, const decltype(U0)&>
+            && std::is_assignable_v<value_type&, const decltype(U0)&>)
       {
          this->assign_from_optional(other);
          return *this;
@@ -219,7 +221,9 @@ namespace io
       // operator= (6)
       template <auto U0>
       constexpr auto operator=(intrusive_optional<U0>&& other) -> intrusive_optional&
-         requires (common_56_condition<U0> && std::is_constructible_v<value_type, decltype(U0)> && std::is_assignable_v<value_type&, decltype(U0)>)
+         requires (common_56_condition<U0>
+            && std::is_constructible_v<value_type, decltype(U0)>
+            && std::is_assignable_v<value_type&, decltype(U0)>)
       {
          this->assign_from_optional(std::forward<intrusive_optional<U0>>(other));
          return *this;
@@ -643,8 +647,8 @@ namespace std
          {
             return static_cast<std::size_t>(0);
          }
-         using T = std::decay_t<decltype(T0)>;
-         return std::hash<T>{}(*optional);
+         using value_type = decltype(T0);
+         return std::hash<value_type>{}(*optional);
       }
    };
 
