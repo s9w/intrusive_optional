@@ -125,68 +125,6 @@ namespace io
 
 
 
-
-
-      // Constructor helpers
-      template <typename opt_type>
-      constexpr auto construct_from_optional(opt_type&& opt) -> void
-      {
-         this->construct_at(*std::forward<opt_type>(opt));
-      }
-
-
-      template <typename ... Args>
-      constexpr auto construct_at(Args&&... args) -> void
-      {
-         std::construct_at(std::addressof(m_value), static_cast<Args&&>(args)...);
-      }
-
-
-      template <typename Opt>
-      constexpr auto assign_from_optional(Opt&& other) -> void
-      {
-         // "If both *this and other do not contain a value, the function has no effect."
-         if(this->has_value() == false && other.has_value() == false)
-         {
-            return;
-         }
-
-         // "If *this contains a value, but other does not, then the contained value is destroyed
-         // by calling its destructor. *this does not contain a value after the call."
-         if(this->has_value() && other.has_value() == false)
-         {
-            this->reset();
-         }
-
-         // "If other contains a value, then depending on whether *this contains a value, the
-         // contained value is either direct-initialized or assigned from *other (2) or
-         // std::move(*other) (3). Note that a moved-from optional still contains a value."
-         if(other.has_value())
-         {
-            if(this->has_value())
-            {
-               **this = *std::forward<Opt>(other);
-            }
-            else
-            {
-               this->construct_at(*std::forward<Opt>(other));
-            }
-         }
-      }
-
-
-      constexpr auto ensure_not_zero() const -> void
-      {
-         if constexpr(mode == safety_mode::safe)
-         {
-            if (this->has_value() == false)
-            {
-               throw unintentionally_null{};
-            }
-         }
-      }
-
-
       // Destructors
       constexpr ~intrusive_optional() requires std::is_trivially_destructible_v<value_type> = default;
 
@@ -482,6 +420,70 @@ namespace io
          }
 
          this->m_value = null_value;
+      }
+
+
+
+
+      // Helpers
+   private:
+      template <typename opt_type>
+      constexpr auto construct_from_optional(opt_type&& opt) -> void
+      {
+         this->construct_at(*std::forward<opt_type>(opt));
+      }
+
+
+      template <typename ... Args>
+      constexpr auto construct_at(Args&&... args) -> void
+      {
+         std::construct_at(std::addressof(m_value), static_cast<Args&&>(args)...);
+      }
+
+
+      template <typename Opt>
+      constexpr auto assign_from_optional(Opt&& other) -> void
+      {
+         // "If both *this and other do not contain a value, the function has no effect."
+         if (this->has_value() == false && other.has_value() == false)
+         {
+            return;
+         }
+
+         // "If *this contains a value, but other does not, then the contained value is destroyed
+         // by calling its destructor. *this does not contain a value after the call."
+         if (this->has_value() && other.has_value() == false)
+         {
+            this->reset();
+            return;
+         }
+
+         // "If other contains a value, then depending on whether *this contains a value, the
+         // contained value is either direct-initialized or assigned from *other (2) or
+         // std::move(*other) (3). Note that a moved-from optional still contains a value."
+         if (other.has_value())
+         {
+            if (this->has_value())
+            {
+               **this = *std::forward<Opt>(other);
+            }
+            else
+            {
+               this->construct_at(*std::forward<Opt>(other));
+            }
+         }
+      }
+
+
+      constexpr auto ensure_not_zero() const -> void
+      {
+         if constexpr (mode == safety_mode::safe)
+         {
+            if (this->has_value() == false)
+            {
+               throw unintentionally_null{};
+            }
+         }
       }
 
 
