@@ -24,7 +24,7 @@ namespace
 
    auto test_ctor_6() -> bool
    {
-      using opt_type = io::intrusive_optional<-1, io::safety_mode::safe>;
+      using opt_type = io::intrusive_optional<-1, io::safety_mode_t::safe>;
       constexpr auto lambda = []() {opt_type value(std::in_place, -1); };
       io::assert(has_thrown(lambda));
 
@@ -43,7 +43,7 @@ namespace
 
    auto test_ctor_8() -> bool
    {
-      using opt_type = io::intrusive_optional<-1, io::safety_mode::safe>;
+      using opt_type = io::intrusive_optional<-1, io::safety_mode_t::safe>;
       constexpr auto lambda = []() {opt_type value(-1); };
       io::assert(has_thrown(lambda));
       return true;
@@ -52,7 +52,7 @@ namespace
 
    auto test_assignment_4() -> bool
    {
-      using opt_type = io::intrusive_optional<0, io::safety_mode::safe>;
+      using opt_type = io::intrusive_optional<0, io::safety_mode_t::safe>;
       auto lambda = []()
       {
          opt_type value;
@@ -65,7 +65,7 @@ namespace
 
    auto test_operator_star() -> bool
    {
-      using opt_type = io::intrusive_optional<-1, io::safety_mode::safe>;
+      using opt_type = io::intrusive_optional<-1, io::safety_mode_t::safe>;
       opt_type default_constructed;
 
       // This won't compile
@@ -77,7 +77,7 @@ namespace
 
    auto test_value() -> bool
    {
-      using opt_type = io::intrusive_optional<-1, io::safety_mode::safe>;
+      using opt_type = io::intrusive_optional<-1, io::safety_mode_t::safe>;
       opt_type default_constructed;
 
       // This won't compile

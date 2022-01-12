@@ -1,9 +1,9 @@
 # intrusive_optional
 The C++ standard library has a `std::optional<T>` type which either contains a `T` with some value or is empty. Such an optional type must always have a size bigger than the contained type. At least by one byte, but usually more than that because of alignment constraints. In most applications, that's not an issue. There are situations however where you really want an optional **without size overhead** - `intrusive_optional` is a C++20 library that does just that.
 
-That is only possible if we give up one possible state of `T` which we consider *magic* or the *null state*. That value is then considered equivalent to a null or a `std::nullopt` value.
+That is only possible if we give up one possible state of `T` which we consider *magic* or the *null state*. That value is then treated equivalent to a null or a `std::nullopt` value.
 
-The type is instantiated with its null value and otherwise completely mirrors the interface of `std::optional`, [see below](#compatibility-with-stdoptional) of differences. Since the null value is part of the type, it needs to be literal, ie instantiable at compile-time. Examples:
+The type is instantiated with its null value and otherwise completely mirrors the interface of `std::optional`, [see below](#compatibility-with-stdoptional) of differences. Since the null value is part of the type, it needs to be literal, i.e. instantiable at compile-time. Examples:
 ```c++
 #include "intrusive_optional.h"
 
@@ -13,13 +13,13 @@ static_assert(sizeof(optional_double) == sizeof(double));
 constexpr optional_double default_value;
 static_assert(default_value.has_value() == false);
 
-constexpr optional_double assigne_value = 5.0;
-static_assert(assigne_value.has_value() == true);
-static_assert(assigne_value.value() == 5.0);
+constexpr optional_double assigned_value = 5.0;
+static_assert(assigned_value.has_value() == true);
+static_assert(assigned_value.value() == 5.0);
 ```
-It's just a single header so grab that from GitHub.
+The whole thing just a single header so grab that from GitHub.
 
-This type solves a very special problem and comes with the constraints stated above. It's not recommended for general replacement of `std::optional<T>` or alternatives like [swl::optional](https://github.com/groundswellaudio/swl-optional). Please **don't hurt yourself** with this.
+This library solves a very special problem and comes with the constraints stated above. It's not recommended for general replacement of `std::optional<T>` or alternatives like [swl::optional](https://github.com/groundswellaudio/swl-optional). Please **don't hurt yourself** with this.
 
 
 ## Safety mode
@@ -58,7 +58,7 @@ tight_optional1 = std_opt;
 ```
 
 ## Compatibility with `std::optional`
-The first overload of [`std::make_optional`](https://en.cppreference.com/w/cpp/utility/optional/make_optional) is such that you can write `std::make_optional(5)` and the type (here: `int`) will be deduced automatically. That isn't possible with `intrusive_optional` since its instantiation requires a value and not just a type. Hence that overload is removed. You can still use the other overloads like `std::make_optional<my_type>(1, 2, 3)`.
+The first overload of [`std::make_optional`](https://en.cppreference.com/w/cpp/utility/optional/make_optional) is such that you can write `std::make_optional(5)` and the type (here: `int`) will be deduced automatically. That isn't possible with `intrusive_optional` since its instantiation requires a value and not just a type. Hence that overload is removed. You can still use the other overloads like `std::make_optional<my_type>(3)`.
 
 
 ## Motivation
@@ -66,6 +66,5 @@ My original motivation was building a concurrency type that was based on `std::a
 
 
 ## TODO
-- operator= overloads 5 and 6
 - missing comparison operators
 - or_else etc, c++23 interface

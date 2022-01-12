@@ -69,6 +69,49 @@ namespace
 
       return true;
    }
+
+
+   constexpr auto test_5() -> bool
+   {
+      using opt_type_a = io::intrusive_optional<10>;
+      using opt_type_b = io::intrusive_optional<10ui8>;
+      {
+         opt_type_b first;
+         opt_type_a second;
+         second = first;
+         io::assert(second.has_value() == false);;
+      }
+      {
+         opt_type_b first(5ui8);
+         opt_type_a second;
+         second = first;
+         io::assert(*second == 5);;
+      }
+
+      return true;
+   }
+
+
+   constexpr auto test_6() -> bool
+   {
+      using opt_type_a = io::intrusive_optional<10>;
+      using opt_type_b = io::intrusive_optional<10ui8>;
+      {
+         opt_type_b first;
+         opt_type_a second;
+         second = std::move(first);
+         io::assert(second.has_value() == false);;
+      }
+      {
+         opt_type_b first(5ui8);
+         opt_type_a second;
+         second = std::move(first);
+         io::assert(*second == 5);;
+         io::assert(first.has_value());;
+      }
+
+      return true;
+   }
    
 } // namespace {}
 
@@ -79,4 +122,6 @@ auto io::test_assignments() -> void
    test_2();
    test_3();
    test_4();
+   test_5();
+   test_6();
 }

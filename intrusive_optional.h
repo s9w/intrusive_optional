@@ -16,10 +16,10 @@ namespace io
       }
    };
 
-   enum class safety_mode{unsafe, safe};
+   enum class safety_mode_t{unsafe, safe};
 
    // intrusive_optional requires compile-time null-value
-   template<auto null_value_param, safety_mode mode = safety_mode::unsafe>
+   template<auto null_value_param, safety_mode_t safety_mode = safety_mode_t::unsafe>
    struct intrusive_optional
    {
       using value_type = std::decay_t<decltype(null_value_param)>;
@@ -64,20 +64,21 @@ namespace io
 
 
       // Requirement for constructors (4) and (5)
-      template <auto U0, typename U = std::decay_t<decltype(U0)>>
+      template <auto U0, typename U = decltype(U0)>
       static inline constexpr bool requirement_4_and_5 =
-         std::is_constructible_v<value_type, const U&>
-         && std::is_constructible_v<value_type, intrusive_optional<U0>&> == false
-         && std::is_constructible_v<value_type, const intrusive_optional<U0>&> == false
-         && std::is_constructible_v<value_type, intrusive_optional<U0>&&> == false
+            std::is_constructible_v<value_type, const U&>
+         && std::is_constructible_v<value_type,       intrusive_optional<U0>&>  == false
+         && std::is_constructible_v<value_type, const intrusive_optional<U0>&>  == false
+         && std::is_constructible_v<value_type,       intrusive_optional<U0>&&> == false
          && std::is_constructible_v<value_type, const intrusive_optional<U0>&&> == false
-         && std::is_convertible_v<intrusive_optional<U0>&, value_type> == false
-         && std::is_convertible_v<const intrusive_optional<U0>&, value_type> == false
-         && std::is_convertible_v<intrusive_optional<U0>&&, value_type> == false
+         && std::is_convertible_v<      intrusive_optional<U0>&,  value_type> == false
+         && std::is_convertible_v<const intrusive_optional<U0>&,  value_type> == false
+         && std::is_convertible_v<      intrusive_optional<U0>&&, value_type> == false
          && std::is_convertible_v<const intrusive_optional<U0>&&, value_type> == false;
 
       // Constructors: (4)
-      template <auto U0, typename U = std::decay_t<decltype(U0)>> requires requirement_4_and_5<U0>
+      template <auto U0, typename U = decltype(U0)>
+      requires requirement_4_and_5<U0>
       constexpr explicit(std::is_convertible_v<const U&, value_type> == false) intrusive_optional(const intrusive_optional<U0>& other)
       {
          this->construct_from_optional(other);
@@ -85,7 +86,8 @@ namespace io
 
 
       // Constructors: (5)
-      template <auto U0, typename U = std::decay_t<decltype(U0)>> requires requirement_4_and_5<U0>
+      template <auto U0, typename U = decltype(U0)>
+      requires requirement_4_and_5<U0>
       constexpr explicit(std::is_convertible_v<U, value_type> == false) intrusive_optional(intrusive_optional<U0>&& other)
       {
          this->construct_from_optional(std::forward<intrusive_optional<U0>>(other));
@@ -190,6 +192,39 @@ namespace io
          return *this;
       }
 
+      template<auto U0>
+      static constexpr inline bool common_56_condition =
+            std::is_constructible_v<value_type,       intrusive_optional<U0>& > == false
+         && std::is_constructible_v<value_type, const intrusive_optional<U0>& > == false
+         && std::is_constructible_v<value_type,       intrusive_optional<U0>&&> == false
+         && std::is_constructible_v<value_type, const intrusive_optional<U0>&&> == false
+         && std::is_convertible_v<      intrusive_optional<U0>&,  value_type> == false
+         && std::is_convertible_v<const intrusive_optional<U0>&,  value_type> == false
+         && std::is_convertible_v<      intrusive_optional<U0>&&, value_type> == false
+         && std::is_convertible_v<const intrusive_optional<U0>&&, value_type> == false
+         && std::is_assignable_v<value_type&,       intrusive_optional<U0>&>  == false
+         && std::is_assignable_v<value_type&, const intrusive_optional<U0>&>  == false
+         && std::is_assignable_v<value_type&,       intrusive_optional<U0>&&> == false
+         && std::is_assignable_v<value_type&, const intrusive_optional<U0>&&> == false;
+
+      // operator= (5)
+      template <auto U0>
+      constexpr auto operator=(const intrusive_optional<U0>& other) -> intrusive_optional&
+         requires (common_56_condition<U0> && std::is_constructible_v<value_type, const decltype(U0)&> && std::is_assignable_v<value_type&, const decltype(U0)&>)
+      {
+         this->assign_from_optional(other);
+         return *this;
+      }
+
+      // operator= (6)
+      template <auto U0>
+      constexpr auto operator=(intrusive_optional<U0>&& other) -> intrusive_optional&
+         requires (common_56_condition<U0> && std::is_constructible_v<value_type, decltype(U0)> && std::is_assignable_v<value_type&, decltype(U0)>)
+      {
+         this->assign_from_optional(std::forward<intrusive_optional<U0>>(other));
+         return *this;
+      }
+
 
       // Construction from std::optional
       explicit constexpr intrusive_optional(const std::optional<value_type>& std)
@@ -264,13 +299,13 @@ namespace io
       }
 
       constexpr auto operator*() & -> value_type&
-         requires(mode == safety_mode::unsafe)
+         requires(safety_mode == safety_mode_t::unsafe)
       {
          return this->m_value;
       }
 
       constexpr auto operator*() && -> value_type&&
-         requires(mode == safety_mode::unsafe)
+         requires(safety_mode == safety_mode_t::unsafe)
       {
          return ::std::move(this->m_value);
       }
@@ -310,7 +345,7 @@ namespace io
       }
 
       constexpr auto value() & -> value_type&
-         requires(mode == safety_mode::unsafe)
+         requires(safety_mode == safety_mode_t::unsafe)
       {
          if (this->has_value() == false)
          {
@@ -320,7 +355,7 @@ namespace io
       }
 
       constexpr auto value() && -> value_type&&
-         requires(mode == safety_mode::unsafe)
+         requires(safety_mode == safety_mode_t::unsafe)
       {
          if (this->has_value() == false)
          {
@@ -477,7 +512,7 @@ namespace io
 
       constexpr auto ensure_not_zero() const -> void
       {
-         if constexpr (mode == safety_mode::safe)
+         if constexpr (safety_mode == safety_mode_t::safe)
          {
             if (this->has_value() == false)
             {
@@ -585,7 +620,7 @@ namespace io
 
 
    // Non-member functions: std::swap
-   template <auto null_value, typename T = std::decay_t<decltype(null_value)>>
+   template <auto null_value, typename T = decltype(null_value)>
    requires (std::is_move_constructible_v<T> && std::is_swappable_v<T>)
       constexpr auto swap(intrusive_optional<null_value>& x, intrusive_optional<null_value>& y)
       noexcept(noexcept(x.swap(y)))
