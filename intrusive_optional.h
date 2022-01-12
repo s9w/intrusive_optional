@@ -130,9 +130,7 @@ namespace io
 
       constexpr ~intrusive_optional() requires (std::is_trivially_destructible_v<value_type> == false)
       {
-         if (this->has_value() == false)
-            return;
-         m_value.~value_type();
+
       }
 
 
@@ -343,7 +341,8 @@ namespace io
 
 
       // Observers: value_or
-      template <typename U> requires (std::is_copy_constructible_v<value_type> && std::is_convertible_v<U&&, value_type>)
+      template <typename U>
+      requires (std::is_copy_constructible_v<value_type> && std::is_convertible_v<U&&, value_type>)
          constexpr auto value_or(U&& default_value) const& -> value_type
       {
          if (this->has_value())
@@ -354,7 +353,8 @@ namespace io
          return static_cast<value_type>(::std::forward<U>(default_value));
       }
 
-      template <typename U> requires (std::is_move_constructible_v<value_type>&& std::is_convertible_v<U&&, value_type>)
+      template <typename U>
+      requires (std::is_move_constructible_v<value_type>&& std::is_convertible_v<U&&, value_type>)
          constexpr auto value_or(U&& default_value) && -> value_type
       {
          if (this->has_value())
