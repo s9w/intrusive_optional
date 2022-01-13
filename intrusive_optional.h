@@ -615,6 +615,20 @@ namespace io
       return lhs.has_value() <=> rhs.has_value();
    }
 
+   // comparison (8)
+   template<auto T0>
+   constexpr auto operator==(const intrusive_optional<T0>& opt, std::nullopt_t) noexcept -> bool
+   {
+      return opt.has_value() == false;
+   }
+
+   // comparison (20)
+   template <auto T0>
+   constexpr auto operator<=>(const intrusive_optional<T0>& opt, std::nullopt_t) noexcept -> std::strong_ordering
+   {
+      return opt.has_value() <=> false;
+   }
+
 
    // make_optional (1) not implemented because automatic deduction of the full type isn't possible
    // with intrusive_optional since it requires a value and not just a type to instantiate.

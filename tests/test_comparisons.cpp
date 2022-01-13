@@ -42,6 +42,18 @@ namespace
          io::assert(a <=> b == std::strong_ordering::greater);
       }
 
+      // overload 8
+      {
+         io::intrusive_optional < -1 > a;
+         io::assert(a == std::nullopt);
+      }
+
+      // overload 20
+      {
+         io::intrusive_optional < -1 > a;
+         io::assert(a <=> std::nullopt == std::strong_ordering::equal);
+      }
+
       return true;
    }
    
