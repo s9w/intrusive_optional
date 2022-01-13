@@ -602,6 +602,19 @@ namespace io
       return *lhs >= *rhs;
    }
 
+   // comparison (7)
+   template<auto T0, auto U0> requires std::three_way_comparable_with<decltype(T0), decltype(U0)>
+   constexpr std::compare_three_way_result_t<decltype(T0), decltype(U0)>
+      operator<=>(const intrusive_optional<T0>& lhs, const intrusive_optional<U0>& rhs)
+   {
+      if (lhs && rhs)
+      {
+         return *lhs <=> *rhs;
+      }
+
+      return lhs.has_value() <=> rhs.has_value();
+   }
+
 
    // make_optional (1) not implemented because automatic deduction of the full type isn't possible
    // with intrusive_optional since it requires a value and not just a type to instantiate.
