@@ -59,11 +59,12 @@ tight_optional = std_opt;
 ## Compatibility with `std::optional`
 The first overload of [`std::make_optional`](https://en.cppreference.com/w/cpp/utility/optional/make_optional) is such that you can write `std::make_optional(5)` and the type (here: `int`) will be deduced automatically. That isn't possible with `intrusive_optional` since its instantiation requires a value and not just a type. Hence that overload is removed. You can still use the other overloads like `std::make_optional<my_type>(3)`.
 
+Also [comparison (33)](https://en.cppreference.com/w/cpp/utility/optional/operator_cmp) isn't implemented. That's a three-way comparison between an optional and a value where the `value_type` of the optional and the other parameter are comparable with each other. This fails due to compile errors, hopefully fixed in future versions.
+
 
 ## Motivation
 My original motivation was building a concurrency type that was based on `std::atomic<std::optional<T>>`. Atomics are crucially size-limited, only resolving to fast code paths for types of 8 bytes or less. Using that with something like `std::chrono::time_point` isn't possible. But in this case as with many, marking a default-constructed `time_point` as special had no practical drawbacks and allowed what I wanted to do.
 
 
 ## TODO
-- missing comparison operators
 - or_else etc, c++23 interface

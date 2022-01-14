@@ -713,6 +713,15 @@ namespace io
       return bool(opt) ? value >= *opt : false;
    }
 
+   // comparison (33)
+   // This currently conflicts with comparison (7)
+   //template<auto T0, std::three_way_comparable_with<int> U >
+   //constexpr auto operator<=>(const intrusive_optional<T0>& opt, const U& value)
+   //   -> std::compare_three_way_result_t<int, U>
+   //{
+   //   return bool(opt) ? *opt <=> value : std::strong_ordering::less;
+   //}
+
 
    // make_optional (1) not implemented because automatic deduction of the full type isn't possible
    // with intrusive_optional since it requires a value and not just a type to instantiate.
