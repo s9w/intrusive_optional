@@ -54,6 +54,12 @@ namespace
          io::assert(a <=> std::nullopt == std::strong_ordering::equal);
       }
 
+      // overload 21
+      {
+         io::intrusive_optional < -1 > a = 5;
+         io::assert(a == 5);
+      }
+
       return true;
    }
    

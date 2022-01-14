@@ -629,6 +629,90 @@ namespace io
       return opt.has_value() <=> false;
    }
 
+   // comparison (21)
+   template<auto T0, class U >
+   constexpr auto operator==(const intrusive_optional<T0>& opt, const U& value) -> bool
+   {
+      return bool(opt) ? *opt == value : false;
+   }
+
+   // comparison (22)
+   template<typename T, auto U0>
+   constexpr auto operator==(const T& value, const intrusive_optional<U0>& opt) -> bool
+   {
+      return bool(opt) ? value == *opt : false;
+   }
+
+   // comparison (23)
+   template<auto T0, class U >
+   constexpr auto operator!=(const intrusive_optional<T0>& opt, const U& value) -> bool
+   {
+      return bool(opt) ? *opt != value : false;
+   }
+
+   // comparison (24)
+   template<typename T, auto U0>
+   constexpr auto operator!=(const T& value, const intrusive_optional<U0>& opt) -> bool
+   {
+      return bool(opt) ? value != *opt : false;
+   }
+
+   // comparison (25)
+   template<auto T0, class U >
+   constexpr auto operator<(const intrusive_optional<T0>& opt, const U& value) -> bool
+   {
+      return bool(opt) ? *opt < value : false;
+   }
+
+   // comparison (26)
+   template<typename T, auto U0>
+   constexpr auto operator<(const T& value, const intrusive_optional<U0>& opt) -> bool
+   {
+      return bool(opt) ? value < *opt : false;
+   }
+
+   // comparison (27)
+   template<auto T0, class U >
+   constexpr auto operator<=(const intrusive_optional<T0>& opt, const U& value) -> bool
+   {
+      return bool(opt) ? *opt <= value : false;
+   }
+
+   // comparison (28)
+   template<typename T, auto U0>
+   constexpr auto operator<=(const T& value, const intrusive_optional<U0>& opt) -> bool
+   {
+      return bool(opt) ? value <= *opt : false;
+   }
+
+   // comparison (29)
+   template<auto T0, class U >
+   constexpr auto operator>(const intrusive_optional<T0>& opt, const U& value) -> bool
+   {
+      return bool(opt) ? *opt > value : false;
+   }
+
+   // comparison (30)
+   template<typename T, auto U0>
+   constexpr auto operator>(const T& value, const intrusive_optional<U0>& opt) -> bool
+   {
+      return bool(opt) ? value > *opt : false;
+   }
+
+   // comparison (31)
+   template<auto T0, class U >
+   constexpr auto operator>=(const intrusive_optional<T0>& opt, const U& value) -> bool
+   {
+      return bool(opt) ? *opt >= value : false;
+   }
+
+   // comparison (32)
+   template<typename T, auto U0>
+   constexpr auto operator>=(const T& value, const intrusive_optional<U0>& opt) -> bool
+   {
+      return bool(opt) ? value >= *opt : false;
+   }
+
 
    // make_optional (1) not implemented because automatic deduction of the full type isn't possible
    // with intrusive_optional since it requires a value and not just a type to instantiate.
