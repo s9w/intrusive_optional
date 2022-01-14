@@ -64,33 +64,33 @@ namespace io
 
 
       // Requirement for constructors (4) and (5)
-      template <auto U0, typename U = decltype(U0)>
+      template <auto T0, typename T = decltype(T0)>
       static inline constexpr bool requirement_4_and_5 =
-            std::is_constructible_v<value_type, const U&>
-         && std::is_constructible_v<value_type,       intrusive_optional<U0>&>  == false
-         && std::is_constructible_v<value_type, const intrusive_optional<U0>&>  == false
-         && std::is_constructible_v<value_type,       intrusive_optional<U0>&&> == false
-         && std::is_constructible_v<value_type, const intrusive_optional<U0>&&> == false
-         && std::is_convertible_v<      intrusive_optional<U0>&,  value_type>   == false
-         && std::is_convertible_v<const intrusive_optional<U0>&,  value_type>   == false
-         && std::is_convertible_v<      intrusive_optional<U0>&&, value_type>   == false
-         && std::is_convertible_v<const intrusive_optional<U0>&&, value_type>   == false;
+            std::is_constructible_v<value_type, const T&>
+         && std::is_constructible_v<value_type,       intrusive_optional<T0>&>  == false
+         && std::is_constructible_v<value_type, const intrusive_optional<T0>&>  == false
+         && std::is_constructible_v<value_type,       intrusive_optional<T0>&&> == false
+         && std::is_constructible_v<value_type, const intrusive_optional<T0>&&> == false
+         && std::is_convertible_v<      intrusive_optional<T0>&,  value_type>   == false
+         && std::is_convertible_v<const intrusive_optional<T0>&,  value_type>   == false
+         && std::is_convertible_v<      intrusive_optional<T0>&&, value_type>   == false
+         && std::is_convertible_v<const intrusive_optional<T0>&&, value_type>   == false;
 
       // Constructors: (4)
-      template <auto U0, typename U = decltype(U0)>
-      requires requirement_4_and_5<U0>
-      constexpr explicit(std::is_convertible_v<const U&, value_type> == false) intrusive_optional(const intrusive_optional<U0>& other)
+      template <auto T0, typename T = decltype(T0)>
+      requires requirement_4_and_5<T0>
+      constexpr explicit(std::is_convertible_v<const T&, value_type> == false) intrusive_optional(const intrusive_optional<T0>& other)
       {
          this->construct_from_optional(other);
       }
 
 
       // Constructors: (5)
-      template <auto U0, typename U = decltype(U0)>
-      requires requirement_4_and_5<U0>
-      constexpr explicit(std::is_convertible_v<U, value_type> == false) intrusive_optional(intrusive_optional<U0>&& other)
+      template <auto T0, typename T = decltype(T0)>
+      requires requirement_4_and_5<T0>
+      constexpr explicit(std::is_convertible_v<T, value_type> == false) intrusive_optional(intrusive_optional<T0>&& other)
       {
-         this->construct_from_optional(std::forward<intrusive_optional<U0>>(other));
+         this->construct_from_optional(std::forward<intrusive_optional<T0>>(other));
       }
 
 
@@ -104,9 +104,9 @@ namespace io
 
 
       // Constructors: (7)
-      template <typename U, typename ... Args>
-      constexpr explicit intrusive_optional(std::in_place_t, std::initializer_list<U> ilist, Args&&... args)
-         requires std::is_constructible_v<value_type, std::initializer_list<U>&, Args...>
+      template <typename T, typename ... Args>
+      constexpr explicit intrusive_optional(std::in_place_t, std::initializer_list<T> ilist, Args&&... args)
+         requires std::is_constructible_v<value_type, std::initializer_list<T>&, Args...>
       {
          this->construct_at(ilist, std::forward<Args>(args)...);
          this->ensure_not_zero();
@@ -192,40 +192,40 @@ namespace io
          return *this;
       }
 
-      template<auto U0>
+      template<auto T0>
       static constexpr inline bool common_56_condition =
-            std::is_constructible_v<value_type,       intrusive_optional<U0>& > == false
-         && std::is_constructible_v<value_type, const intrusive_optional<U0>& > == false
-         && std::is_constructible_v<value_type,       intrusive_optional<U0>&&> == false
-         && std::is_constructible_v<value_type, const intrusive_optional<U0>&&> == false
-         && std::is_convertible_v<      intrusive_optional<U0>&,  value_type>   == false
-         && std::is_convertible_v<const intrusive_optional<U0>&,  value_type>   == false
-         && std::is_convertible_v<      intrusive_optional<U0>&&, value_type>   == false
-         && std::is_convertible_v<const intrusive_optional<U0>&&, value_type>   == false
-         && std::is_assignable_v<value_type&,       intrusive_optional<U0>&>    == false
-         && std::is_assignable_v<value_type&, const intrusive_optional<U0>&>    == false
-         && std::is_assignable_v<value_type&,       intrusive_optional<U0>&&>   == false
-         && std::is_assignable_v<value_type&, const intrusive_optional<U0>&&>   == false;
+            std::is_constructible_v<value_type,       intrusive_optional<T0>& > == false
+         && std::is_constructible_v<value_type, const intrusive_optional<T0>& > == false
+         && std::is_constructible_v<value_type,       intrusive_optional<T0>&&> == false
+         && std::is_constructible_v<value_type, const intrusive_optional<T0>&&> == false
+         && std::is_convertible_v<      intrusive_optional<T0>&,  value_type>   == false
+         && std::is_convertible_v<const intrusive_optional<T0>&,  value_type>   == false
+         && std::is_convertible_v<      intrusive_optional<T0>&&, value_type>   == false
+         && std::is_convertible_v<const intrusive_optional<T0>&&, value_type>   == false
+         && std::is_assignable_v<value_type&,       intrusive_optional<T0>&>    == false
+         && std::is_assignable_v<value_type&, const intrusive_optional<T0>&>    == false
+         && std::is_assignable_v<value_type&,       intrusive_optional<T0>&&>   == false
+         && std::is_assignable_v<value_type&, const intrusive_optional<T0>&&>   == false;
 
       // operator= (5)
-      template <auto U0>
-      constexpr auto operator=(const intrusive_optional<U0>& other) -> intrusive_optional&
-         requires (common_56_condition<U0>
-            && std::is_constructible_v<value_type, const decltype(U0)&>
-            && std::is_assignable_v<value_type&, const decltype(U0)&>)
+      template <auto T0>
+      constexpr auto operator=(const intrusive_optional<T0>& other) -> intrusive_optional&
+         requires (common_56_condition<T0>
+            && std::is_constructible_v<value_type, const decltype(T0)&>
+            && std::is_assignable_v<value_type&, const decltype(T0)&>)
       {
          this->assign_from_optional(other);
          return *this;
       }
 
       // operator= (6)
-      template <auto U0>
-      constexpr auto operator=(intrusive_optional<U0>&& other) -> intrusive_optional&
-         requires (common_56_condition<U0>
-            && std::is_constructible_v<value_type, decltype(U0)>
-            && std::is_assignable_v<value_type&, decltype(U0)>)
+      template <auto T0>
+      constexpr auto operator=(intrusive_optional<T0>&& other) -> intrusive_optional&
+         requires (common_56_condition<T0>
+            && std::is_constructible_v<value_type, decltype(T0)>
+            && std::is_assignable_v<value_type&, decltype(T0)>)
       {
-         this->assign_from_optional(std::forward<intrusive_optional<U0>>(other));
+         this->assign_from_optional(std::forward<intrusive_optional<T0>>(other));
          return *this;
       }
 
@@ -380,35 +380,35 @@ namespace io
 
 
       // Observers: value_or
-      template <typename U>
-      requires (std::is_copy_constructible_v<value_type> && std::is_convertible_v<U&&, value_type>)
-         constexpr auto value_or(U&& default_value) const& -> value_type
+      template <typename T>
+      requires (std::is_copy_constructible_v<value_type> && std::is_convertible_v<T&&, value_type>)
+         constexpr auto value_or(T&& default_value) const& -> value_type
       {
          if (this->has_value())
          {
             return this->m_value;
          }
 
-         return static_cast<value_type>(::std::forward<U>(default_value));
+         return static_cast<value_type>(::std::forward<T>(default_value));
       }
 
-      template <typename U>
-      requires (std::is_move_constructible_v<value_type>&& std::is_convertible_v<U&&, value_type>)
-         constexpr auto value_or(U&& default_value) && -> value_type
+      template <typename T>
+      requires (std::is_move_constructible_v<value_type> && std::is_convertible_v<T&&, value_type>)
+         constexpr auto value_or(T&& default_value) && -> value_type
       {
          if (this->has_value())
          {
             return ::std::move(this->m_value);
          }
 
-         return static_cast<value_type>(::std::forward<U>(default_value));
+         return static_cast<value_type>(::std::forward<T>(default_value));
       }
 
 
 
       // Modifiers: swap
-      constexpr void swap(intrusive_optional& other)
-         noexcept(std::is_nothrow_move_constructible_v<value_type> && std::is_nothrow_swappable_v<value_type>)
+      constexpr auto swap(intrusive_optional& other)
+      noexcept(std::is_nothrow_move_constructible_v<value_type> && std::is_nothrow_swappable_v<value_type>) -> void
          requires std::is_move_constructible_v<value_type>
       {
          if (this->has_value() == false && other.has_value() == false)
@@ -530,8 +530,8 @@ namespace io
 
 
    // Non-member functions; comparisons (1-6)
-   template <auto T, auto U>
-   constexpr auto operator==(const intrusive_optional<T>& lhs, const intrusive_optional<U>& rhs) -> bool
+   template <auto T0, auto T1>
+   constexpr auto operator==(const intrusive_optional<T0>& lhs, const intrusive_optional<T1>& rhs) -> bool
       requires requires { bool(*lhs == *rhs); }
    {
       if (bool(lhs) != bool(rhs))
@@ -542,8 +542,8 @@ namespace io
    }
 
    // comparison (2)
-   template <auto T, auto U>
-   constexpr auto operator!=(const intrusive_optional<T>& lhs, const intrusive_optional<U>& rhs) -> bool
+   template <auto T0, auto T1>
+   constexpr auto operator!=(const intrusive_optional<T0>& lhs, const intrusive_optional<T1>& rhs) -> bool
       requires requires { bool(*lhs != *rhs); }
    {
       if (bool(lhs) != bool(rhs))
@@ -554,8 +554,8 @@ namespace io
    }
 
    // comparison (3)
-   template <auto T, auto U>
-   constexpr auto operator<(const intrusive_optional<T>& lhs, const intrusive_optional<U>& rhs) -> bool
+   template <auto T0, auto T1>
+   constexpr auto operator<(const intrusive_optional<T0>& lhs, const intrusive_optional<T1>& rhs) -> bool
       requires requires { bool(*lhs < *rhs); }
    {
       if (bool(rhs) == false)
@@ -566,8 +566,8 @@ namespace io
    }
 
    // comparison (4)
-   template <auto T, auto U>
-   constexpr auto operator<=(const intrusive_optional<T>& lhs, const intrusive_optional<U>& rhs) -> bool
+   template <auto T0, auto T1>
+   constexpr auto operator<=(const intrusive_optional<T0>& lhs, const intrusive_optional<T1>& rhs) -> bool
       requires requires { bool(*lhs <= *rhs); }
    {
       if (bool(lhs) == false)
@@ -579,8 +579,8 @@ namespace io
    
 
    // comparison (5)
-   template <auto T, auto U>
-   constexpr auto operator>(const intrusive_optional<T>& lhs, const intrusive_optional<U>& rhs) -> bool
+   template <auto T0, auto T1>
+   constexpr auto operator>(const intrusive_optional<T0>& lhs, const intrusive_optional<T1>& rhs) -> bool
       requires requires { bool(*lhs > * rhs); }
    {
       if (bool(lhs) == false)
@@ -591,8 +591,8 @@ namespace io
    }
 
    // comparison (6)
-   template <auto T, auto U>
-   constexpr auto operator>=(const intrusive_optional<T>& lhs, const intrusive_optional<U>& rhs) -> bool
+   template <auto T0, auto T1>
+   constexpr auto operator>=(const intrusive_optional<T0>& lhs, const intrusive_optional<T1>& rhs) -> bool
       requires requires { bool(*lhs >= *rhs); }
    {
       if (bool(lhs) == false)
@@ -603,9 +603,9 @@ namespace io
    }
 
    // comparison (7)
-   template<auto T0, auto U0> requires std::three_way_comparable_with<decltype(T0), decltype(U0)>
-   constexpr std::compare_three_way_result_t<decltype(T0), decltype(U0)>
-      operator<=>(const intrusive_optional<T0>& lhs, const intrusive_optional<U0>& rhs)
+   template<auto T0, auto T1> requires std::three_way_comparable_with<decltype(T0), decltype(T1)>
+   constexpr auto operator<=>(const intrusive_optional<T0>& lhs, const intrusive_optional<T1>& rhs)
+      -> std::compare_three_way_result_t<decltype(T0), decltype(T1)>
    {
       if (lhs && rhs)
       {
@@ -630,85 +630,85 @@ namespace io
    }
 
    // comparison (21)
-   template<auto T0, class U >
-   constexpr auto operator==(const intrusive_optional<T0>& opt, const U& value) -> bool
+   template<auto T0, typename T>
+   constexpr auto operator==(const intrusive_optional<T0>& opt, const T& value) -> bool
    {
       return bool(opt) ? *opt == value : false;
    }
 
    // comparison (22)
-   template<typename T, auto U0>
-   constexpr auto operator==(const T& value, const intrusive_optional<U0>& opt) -> bool
+   template<typename T, auto T0>
+   constexpr auto operator==(const T& value, const intrusive_optional<T0>& opt) -> bool
    {
       return bool(opt) ? value == *opt : false;
    }
 
    // comparison (23)
-   template<auto T0, class U >
-   constexpr auto operator!=(const intrusive_optional<T0>& opt, const U& value) -> bool
+   template<auto T0, typename T>
+   constexpr auto operator!=(const intrusive_optional<T0>& opt, const T& value) -> bool
    {
       return bool(opt) ? *opt != value : false;
    }
 
    // comparison (24)
-   template<typename T, auto U0>
-   constexpr auto operator!=(const T& value, const intrusive_optional<U0>& opt) -> bool
+   template<typename T, auto T0>
+   constexpr auto operator!=(const T& value, const intrusive_optional<T0>& opt) -> bool
    {
       return bool(opt) ? value != *opt : false;
    }
 
    // comparison (25)
-   template<auto T0, class U >
-   constexpr auto operator<(const intrusive_optional<T0>& opt, const U& value) -> bool
+   template<auto T0, typename T>
+   constexpr auto operator<(const intrusive_optional<T0>& opt, const T& value) -> bool
    {
       return bool(opt) ? *opt < value : false;
    }
 
    // comparison (26)
-   template<typename T, auto U0>
-   constexpr auto operator<(const T& value, const intrusive_optional<U0>& opt) -> bool
+   template<typename T, auto T0>
+   constexpr auto operator<(const T& value, const intrusive_optional<T0>& opt) -> bool
    {
       return bool(opt) ? value < *opt : false;
    }
 
    // comparison (27)
-   template<auto T0, class U >
-   constexpr auto operator<=(const intrusive_optional<T0>& opt, const U& value) -> bool
+   template<auto T0, typename T>
+   constexpr auto operator<=(const intrusive_optional<T0>& opt, const T& value) -> bool
    {
       return bool(opt) ? *opt <= value : false;
    }
 
    // comparison (28)
-   template<typename T, auto U0>
-   constexpr auto operator<=(const T& value, const intrusive_optional<U0>& opt) -> bool
+   template<typename T, auto T0>
+   constexpr auto operator<=(const T& value, const intrusive_optional<T0>& opt) -> bool
    {
       return bool(opt) ? value <= *opt : false;
    }
 
    // comparison (29)
-   template<auto T0, class U >
-   constexpr auto operator>(const intrusive_optional<T0>& opt, const U& value) -> bool
+   template<auto T0, typename T>
+   constexpr auto operator>(const intrusive_optional<T0>& opt, const T& value) -> bool
    {
       return bool(opt) ? *opt > value : false;
    }
 
    // comparison (30)
-   template<typename T, auto U0>
-   constexpr auto operator>(const T& value, const intrusive_optional<U0>& opt) -> bool
+   template<typename T, auto T0>
+   constexpr auto operator>(const T& value, const intrusive_optional<T0>& opt) -> bool
    {
       return bool(opt) ? value > *opt : false;
    }
 
    // comparison (31)
-   template<auto T0, class U >
-   constexpr auto operator>=(const intrusive_optional<T0>& opt, const U& value) -> bool
+   template<auto T0, typename T>
+   constexpr auto operator>=(const intrusive_optional<T0>& opt, const T& value) -> bool
    {
       return bool(opt) ? *opt >= value : false;
    }
 
    // comparison (32)
-   template<typename T, auto U0>
-   constexpr auto operator>=(const T& value, const intrusive_optional<U0>& opt) -> bool
+   template<typename T, auto T0>
+   constexpr auto operator>=(const T& value, const intrusive_optional<T0>& opt) -> bool
    {
       return bool(opt) ? value >= *opt : false;
    }
@@ -760,11 +760,13 @@ namespace io
 namespace std
 {
    template <auto T0>
-   struct hash<io::intrusive_optional<T0>> {
+   struct hash<io::intrusive_optional<T0>>
+   {
       auto operator()(const io::intrusive_optional<T0>& optional) const -> std::size_t
       {
          if (optional.has_value() == false)
          {
+            // "For an optional that does not contain a value, the hash is unspecified."
             return static_cast<std::size_t>(0);
          }
          using value_type = decltype(T0);
