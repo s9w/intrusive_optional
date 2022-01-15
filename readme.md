@@ -63,8 +63,9 @@ Also [comparison (33)](https://en.cppreference.com/w/cpp/utility/optional/operat
 
 
 ## Motivation
-My original motivation was building a concurrency type that was based on `std::atomic<std::optional<T>>`. Atomics are crucially size-limited, only resolving to fast code paths for types of 8 bytes or less. Using that with something like `std::chrono::time_point` isn't possible. But in this case as with many, marking a default-constructed `time_point` as special had no practical drawbacks and allowed what I wanted to do.
+My original motivation was building a concurrency type that was based on `std::atomic<std::optional<T>>`. Atomics are crucially size-limited, only resolving to fast code paths for types of 8 bytes or less. Using that with an 8-byte type like `std::chrono::time_point` isn't possible. The other problem is that `std::atomic<T>::wait()` uses bitwise comparison and not `operator==`. But two `std::optional` types are not bitwise-equal if they're both `nullopt`.
 
+`intrusive_optional` solves both these problems. Since the entire state is encoded in a single `T`, bitwise comparison works and there's no size overhead.
 
 ## TODO
 - or_else etc, c++23 interface
