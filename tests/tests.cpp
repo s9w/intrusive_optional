@@ -4,10 +4,6 @@
 #include "test_safety.h"
 #include "test_misc.h"
 
-#include "tests_common.h"
-
-#include "../swl_optional.hpp"
-
 
 int main()
 {

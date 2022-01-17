@@ -2,22 +2,19 @@
 
 #include "tests_common.h"
 
-
 namespace
 {
 
-   constexpr auto test_1() -> bool
+   constexpr auto test_1()-> void
    {
       {
          constexpr two_values_optional assigned = std::nullopt;
          static_assert(assigned.has_value() == false);
       }
-
-      return true;
    }
 
 
-   constexpr auto test_2() -> bool
+   constexpr auto test_2()-> void
    {
       {
          constexpr two_values_optional first(std::in_place, 2, 3);
@@ -30,12 +27,10 @@ namespace
          constexpr two_values_optional assigned = first;
          static_assert(*first == *assigned);
       }
-
-      return true;
    }
 
 
-   constexpr auto test_3() -> bool
+   constexpr auto test_3()-> void
    {
       {
          constexpr two_values_optional first(std::in_place, 2, 3);
@@ -48,30 +43,25 @@ namespace
          constexpr two_values_optional assigned = std::move(first);
          static_assert(*first == *assigned);
       }
-
-      return true;
    }
 
 
-   constexpr auto test_4() -> bool
+   constexpr auto test_4()-> void
    {
-      using opt_type = io::intrusive_optional<5>;
 
       {
          constexpr auto generator = []()
          {
-            opt_type value;
+            io::intrusive_optional<5> value;
             value = 5ui8;
             return value;
          };
          static_assert(*generator() == 5);
       }
-
-      return true;
    }
 
 
-   constexpr auto test_5() -> bool
+   constexpr auto test_5()-> void
    {
       using opt_type_a = io::intrusive_optional<10>;
       using opt_type_b = io::intrusive_optional<10ui8>;
@@ -87,12 +77,10 @@ namespace
          second = first;
          io::assert(*second == 5);;
       }
-
-      return true;
    }
 
 
-   constexpr auto test_6() -> bool
+   constexpr auto test_6()-> void
    {
       using opt_type_a = io::intrusive_optional<10>;
       using opt_type_b = io::intrusive_optional<10ui8>;
@@ -109,8 +97,6 @@ namespace
          io::assert(*second == 5);;
          io::assert(first.has_value());;
       }
-
-      return true;
    }
    
 } // namespace {}

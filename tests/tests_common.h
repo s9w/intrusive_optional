@@ -31,7 +31,7 @@ namespace io
    };
    static_assert(std::is_trivially_copy_constructible_v<one_value> == false);
    static_assert(std::is_trivially_move_constructible_v<one_value> == false);
-   constexpr auto operator==(const one_value& first, const one_value& second) -> bool
+   constexpr auto operator==(const one_value& first, const one_value& second)-> bool
    {
       return first.a == second.a;
    }
@@ -80,29 +80,29 @@ namespace io
    static_assert(std::is_trivially_copy_constructible_v<two_values> == false);
    static_assert(std::is_trivially_move_constructible_v<two_values> == false);
 
-   [[nodiscard]] constexpr auto operator==(const two_values& first, const two_values& second) -> bool
+   [[nodiscard]] constexpr auto operator==(const two_values& first, const two_values& second)-> bool
    {
       return first.m_a == second.m_a && first.m_b == second.m_b;
    }
-   [[nodiscard]] constexpr auto operator!=(const two_values& first, const two_values& second) -> bool
+   [[nodiscard]] constexpr auto operator!=(const two_values& first, const two_values& second)-> bool
    {
       return (first == second) == false;
    }
 
    // All other comparisons are limited to first value
-   [[nodiscard]] constexpr auto operator<(const two_values& first, const two_values& second) -> bool
+   [[nodiscard]] constexpr auto operator<(const two_values& first, const two_values& second)-> bool
    {
       return first.m_a < second.m_a;
    }
-   [[nodiscard]] constexpr auto operator>(const two_values& first, const two_values& second) -> bool
+   [[nodiscard]] constexpr auto operator>(const two_values& first, const two_values& second)-> bool
    {
       return first.m_a > second.m_a;
    }
-   [[nodiscard]] constexpr auto operator<=(const two_values& first, const two_values& second) -> bool
+   [[nodiscard]] constexpr auto operator<=(const two_values& first, const two_values& second)-> bool
    {
       return first.m_a <= second.m_a;
    }
-   [[nodiscard]] constexpr auto operator>=(const two_values& first, const two_values& second) -> bool
+   [[nodiscard]] constexpr auto operator>=(const two_values& first, const two_values& second)-> bool
    {
       return first.m_a >= second.m_a;
    }
@@ -111,4 +111,4 @@ namespace io
 
 
 using two_values_optional = io::intrusive_optional < io::two_values{} >;
-using two_values_optional_safe = io::intrusive_optional < io::two_values{}, io::safety_mode_t::safe >;
+using two_values_optional_safe = io::intrusive_optional < io::two_values{}, io::safety_mode_t::safe>;

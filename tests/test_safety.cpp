@@ -6,14 +6,14 @@
 namespace
 {
 
-   template<typename lambda>
-   auto has_thrown(const lambda& fun) -> bool
+   template<typename exception_type, typename lambda>
+   [[nodiscard]] auto has_thrown_impl(const lambda& fun) -> bool
    {
       try
       {
          fun();
       }
-      catch(io::unintentionally_null)
+      catch (exception_type)
       {
          return true;
       }
@@ -21,36 +21,38 @@ namespace
    }
 
 
+   template<typename lambda>
+   [[nodiscard]] auto has_thrown(const lambda& fun) -> bool
+   {
+      return has_thrown_impl<io::unintentionally_null>(fun);
+   }
 
-   auto test_ctor_6() -> bool
+
+
+   auto test_ctor_6()-> void
    {
       using opt_type = io::intrusive_optional<-1, io::safety_mode_t::safe>;
       constexpr auto lambda = []() {opt_type value(std::in_place, -1); };
       io::assert(has_thrown(lambda));
-
-      return true;
    }
 
 
-   auto test_ctor_7() -> bool
+   auto test_ctor_7()-> void
    {
       constexpr auto lambda = []() {two_values_optional_safe value(std::in_place, {0}, 0); };
       io::assert(has_thrown(lambda));
-
-      return true;
    }
 
 
-   auto test_ctor_8() -> bool
+   auto test_ctor_8()-> void
    {
       using opt_type = io::intrusive_optional<-1, io::safety_mode_t::safe>;
       constexpr auto lambda = []() {opt_type value(-1); };
       io::assert(has_thrown(lambda));
-      return true;
    }
 
 
-   auto test_assignment_4() -> bool
+   auto test_assignment_4()-> void
    {
       using opt_type = io::intrusive_optional<0, io::safety_mode_t::safe>;
       auto lambda = []()
@@ -59,35 +61,31 @@ namespace
          value = 0ui8;
       };
       io::assert(has_thrown(lambda));
-      return true;
+      
    }
 
 
-   auto test_operator_star() -> bool
+   auto test_operator_star()-> void
    {
       using opt_type = io::intrusive_optional<-1, io::safety_mode_t::safe>;
       opt_type default_constructed;
 
       // This won't compile
       //*default_constructed = 5;
-
-      return true;
    }
 
 
-   auto test_value() -> bool
+   auto test_value()-> void
    {
       using opt_type = io::intrusive_optional<-1, io::safety_mode_t::safe>;
       opt_type default_constructed;
 
       // This won't compile
       //default_constructed.value() = 5;
-
-      return true;
    }
 
 
-   auto test_emplace_1() -> bool
+   auto test_emplace_1()-> void
    {
       constexpr auto lambda = []()
       {
@@ -95,11 +93,10 @@ namespace
          value.emplace(0, 0);
       };
       io::assert(has_thrown(lambda));
-      return true;
    }
 
 
-   auto test_emplace_2() -> bool
+   auto test_emplace_2()-> void
    {
       constexpr auto lambda = []()
       {
@@ -107,7 +104,6 @@ namespace
          value.emplace({ 0 }, 0);
       };
       io::assert(has_thrown(lambda));
-      return true;
    }
    
    

@@ -6,9 +6,9 @@
 namespace
 {
 
-   constexpr auto test_1_to_6() -> bool
+   constexpr auto test_1_to_6()-> void
    {
-      // 1-2
+      // overload 1-2
       {
          constexpr two_values_optional first(std::in_place, 2, 5);
          constexpr two_values_optional second(std::in_place, 2, 5);
@@ -18,7 +18,7 @@ namespace
          static_assert(first != third);
       }
 
-      // 3-6
+      // overload 3-6
       {
          constexpr two_values_optional first(std::in_place, 2, 5);
          constexpr two_values_optional second(std::in_place, 3, 5);
@@ -59,8 +59,7 @@ namespace
          io::intrusive_optional < -1 > a = 5;
          io::assert(a == 5);
       }
-
-      return true;
+      
    }
    
 } // namespace {}

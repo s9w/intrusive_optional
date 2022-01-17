@@ -6,7 +6,7 @@
 namespace
 {
 
-   auto test_hash() -> bool
+   auto test_hash()-> void
    {
       using opt_type = io::intrusive_optional<-1>;
       {
@@ -15,12 +15,10 @@ namespace
          io::assert(std::hash<opt_type>{}(a) == std::hash<opt_type>{}(a));
          io::assert(std::hash<opt_type>{}(a) != std::hash<opt_type>{}(b));
       }
-
-      return true;
    }
 
 
-   auto test_assignment_from_std() -> bool
+   auto test_assignment_from_std()-> void
    {
       using opt_type = io::intrusive_optional<-1>;
       {
@@ -47,12 +45,10 @@ namespace
          io = std::move(std_opt);
          io::assert(io.has_value() == false);
       }
-
-      return true;
    }
 
 
-   auto test_conversion_to_std() -> bool
+   auto test_conversion_to_std()-> void
    {
       using opt_type = io::intrusive_optional<-1>;
       {
@@ -65,12 +61,10 @@ namespace
          auto std_opt = opt.get_std();
          io::assert(*std_opt == 5);
       }
-
-      return true;
    }
 
 
-   auto test_construction_from_std() -> bool
+   auto test_construction_from_std()-> void
    {
       using opt_type = io::intrusive_optional<-1>;
       {
@@ -94,8 +88,6 @@ namespace
          opt_type opt(std::move(std));
          io::assert(*opt == *std);
       }
-
-      return true;
    }
    
 } // namespace {}

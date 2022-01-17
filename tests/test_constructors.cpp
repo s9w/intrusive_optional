@@ -6,7 +6,7 @@
 namespace
 {
 
-   constexpr auto test_1() -> bool
+   constexpr auto test_1()-> void
    {
       {
          constexpr two_values_optional default_constructed;
@@ -17,12 +17,10 @@ namespace
          constexpr two_values_optional nullopt_constructed(std::nullopt);
          static_assert(nullopt_constructed.has_value() == false);
       }
-
-      return true;
    }
 
 
-   constexpr auto test_2() -> bool
+   constexpr auto test_2()-> void
    {
       {
          constexpr two_values_optional default_constructed;
@@ -43,12 +41,10 @@ namespace
          one_value_optional copy_target(value);
          io::assert(*value == *copy_target);
       }
-
-      return true;
    }
 
 
-   constexpr auto test_3() -> bool
+   constexpr auto test_3()-> void
    {
       {
          constexpr auto f = []() {
@@ -70,12 +66,10 @@ namespace
          io::assert(*value == *copy_target);
          io::assert(value.has_value());
       }
-
-      return true;
    }
 
 
-   constexpr auto test_4() -> bool
+   constexpr auto test_4()-> void
    {
       {
          using type0 = io::intrusive_optional < io::one_value{ 0 } > ;
@@ -91,45 +85,40 @@ namespace
          constexpr type0 second(first);
          static_assert(*first == *second);
       }
-      return true;
    }
 
-   constexpr auto test_5() -> bool
+
+   constexpr auto test_5()-> void
    {
       using type0 = io::intrusive_optional < io::one_value{ 0 } > ;
       using type1 = io::intrusive_optional < io::one_value{ -1 } > ;
       constexpr type0 first(7);
       constexpr type1 second(std::move(first));
       static_assert(*first == *second);
-      return true;
    }
 
 
-   constexpr auto test_6() -> bool
+   constexpr auto test_6()-> void
    {
       constexpr two_values_optional first(std::in_place, 2, 3);
       constexpr io::two_values expected(2, 3);
       static_assert(first.value() == expected);
-
-      return true;
    }
 
-   constexpr auto test_7() -> bool
+
+   constexpr auto test_7()-> void
    {
       constexpr two_values_optional first(std::in_place, {2}, 3);
       constexpr io::two_values expected(2, 3);
       static_assert(first.value() == expected);
-
-      return true;
    }
 
-   constexpr auto test_8() -> bool
+
+   constexpr auto test_8()-> void
    {
       constexpr io::intrusive_optional < io::one_value{} > first(5);
       constexpr io::one_value expected(5);
       static_assert(first.value() == expected);
-
-      return true;
    }
    
 } // namespace {}
